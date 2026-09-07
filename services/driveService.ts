@@ -14,9 +14,7 @@ export const setStoredClientId = (id: string) => {
 
 // Helper to get App ID (Project Number) for Picker API
 export const getAppId = () => {
-    const envId = process.env.GOOGLE_APP_ID;
-    if (envId) return envId;
-    return localStorage.getItem('GOOGLE_APP_ID') || '';
+    return '217275101727';
 };
 
 export const setStoredAppId = (id: string) => {
