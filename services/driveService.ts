@@ -5,11 +5,7 @@ import { NexusProjectState, RaciRole, PeopleCost, ServiceCost, MaterialCost, Oth
 
 // Helper to get Client ID from Env or LocalStorage
 export const getClientId = () => {
-    const envId = process.env.GOOGLE_CLIENT_ID;
-    if (envId && envId !== 'YOUR_CLIENT_ID_HERE') return envId;
-    
-    const storedId = localStorage.getItem('GOOGLE_CLIENT_ID');
-    return storedId || 'YOUR_CLIENT_ID_HERE';
+    return '217275101727-tpduauhn45mlsm19keb66bk0hpsmc1o6.apps.googleusercontent.com';
 };
 
 export const setStoredClientId = (id: string) => {
