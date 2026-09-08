@@ -8,3 +8,5 @@ Tester Instructions: Connecting Your Free Gemini API Key
 KARISFA PM uses Google's Gemini models to generate project deliverables (such as Charters, RACI matrices, and Risk Registers). To test these features, you will need to provide your own free Gemini API key.
 
 No credit card or billing information is required.
+
+Revoking Access: You can delete or disable your key at any time by returning to the Google AI Studio API Keys dashboard.
