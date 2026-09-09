@@ -9,11 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.37.0",
+    "html2pdf.js": "^0.14.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@google/genai": "^1.37.0",
-    "recharts": "^3.6.0",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

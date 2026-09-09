@@ -88,6 +88,12 @@ export interface Deliverable {
   dueDate?: string;
 }
 
+export interface JournalEntry {
+  id: string;
+  date: string;
+  content: string;
+}
+
 // --- Resource & Costing Types ---
 
 export interface PeopleCost {
@@ -140,5 +146,6 @@ export interface NexusProjectState {
   milestones: Milestone[];
   deliverables: Deliverable[];
   resources: ProjectResource[];
+  journalEntries?: JournalEntry[];
   lastSaved?: string;
 }

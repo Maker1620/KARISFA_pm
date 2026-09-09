@@ -4,6 +4,7 @@ import { TeamManager } from './components/TeamManager';
 import { ProjectForm } from './components/ProjectForm';
 import { RaciMatrix } from './components/RaciMatrix';
 import { DocumentView } from './components/DocumentView';
+import { ProgressInsights } from './components/ProgressInsights';
 import { RiskChart } from './components/RiskChart';
 import { WorkBreakdown } from './components/WorkBreakdown';
 import { GanttChart } from './components/GanttChart';
@@ -12,9 +13,10 @@ import { SettingsModal } from './components/SettingsModal';
 import { AiSettingsModal } from './components/AiSettingsModal';
 import { 
     ProjectData, TeamMember, RaciRow, RiskItem, Deliverable, Milestone, Task, 
-    NexusProjectState, ProjectResource 
+    NexusProjectState, ProjectResource, JournalEntry 
 } from './types';
-import { initDriveApi, signInToDrive, saveProjectAsSheet, openFolderPicker } from './services/driveService';
+import { initDriveApi, signInToDrive, saveProjectAsSheet, openFolderPicker, getFilesInFolder, getFileText } from './services/driveService';
+import { extractProjectDataFromDocs } from './services/geminiService';
 import { loadLocalProject, saveLocalProject } from './services/storageService';
 
 function App() {
@@ -45,9 +47,13 @@ function App() {
   // Resource State
   const [resources, setResources] = useState<ProjectResource[]>([]);
 
+  // Journal State
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [isImportingDocs, setIsImportingDocs] = useState(false);
 
   // Load from Local Storage on Mount
   useEffect(() => {
@@ -61,6 +67,7 @@ function App() {
           setMilestones(localState.milestones || []);
           setDeliverables(localState.deliverables || []);
           setResources(localState.resources || []);
+          setJournalEntries(localState.journalEntries || []);
       }
       // Attempt to init Drive API silently
       initDriveApi().catch(console.error);
@@ -84,13 +91,12 @@ function App() {
   useEffect(() => {
       const timer = setTimeout(() => {
           const state: NexusProjectState = {
-              projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries,
               lastSaved: new Date().toISOString()
           };
           saveLocalProject(state);
       }, 2000); // Debounce save
-      return () => clearTimeout(timer);
-  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources]);
+  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries]);
 
   const handleSignIn = async () => {
       try {
@@ -143,7 +149,7 @@ function App() {
       // If NOT signed in, simple local save confirmation
       if (!isSignedIn) {
           const state: NexusProjectState = {
-              projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries,
               lastSaved: new Date().toISOString()
           };
           saveLocalProject(state);
@@ -169,6 +175,7 @@ function App() {
               milestones,
               deliverables,
               resources,
+              journalEntries,
               lastSaved: new Date().toISOString()
           };
 
@@ -195,7 +202,7 @@ function App() {
           if(!confirm("Project has no name. Export anyway?")) return;
       }
       const state: NexusProjectState = {
-          projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+          projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries,
           lastSaved: new Date().toISOString()
       };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
@@ -227,6 +234,7 @@ function App() {
               setMilestones(importedState.milestones || []);
               setDeliverables(importedState.deliverables || []);
               setResources(importedState.resources || []);
+              setJournalEntries(importedState.journalEntries || []);
               
               saveLocalProject(importedState); // Also save to local storage immediately
               alert("Project loaded successfully!");
@@ -240,10 +248,125 @@ function App() {
       e.target.value = '';
   };
 
+  const handleImportDocsFolder = async () => {
+      let token = accessToken;
+      if (!token) {
+          try {
+              await initDriveApi();
+              token = await signInToDrive();
+              if (token) {
+                  setAccessToken(token);
+                  setIsSignedIn(true);
+              } else {
+                  return;
+              }
+          } catch (e) {
+              alert("Sign in failed");
+              return;
+          }
+      }
+
+      try {
+          const folder = await openFolderPicker(token);
+          if (!folder) return;
+          if (folder.id === 'simulated-folder-id') {
+              alert("Simulation Mode: Cannot read actual files.");
+              return;
+          }
+
+          setIsImportingDocs(true);
+          const files = await getFilesInFolder(folder.id);
+          let combinedText = '';
+          for (const file of files.slice(0, 5)) {
+              const text = await getFileText(file.id, file.mimeType, token);
+              if (text) combinedText += `\n--- File: ${file.name} ---\n${text}\n`;
+          }
+
+          if (!combinedText) {
+              alert("No readable text documents found in the selected folder.");
+              return;
+          }
+
+          const extracted = await extractProjectDataFromDocs(combinedText);
+          
+          setProjectData(prev => ({
+              ...prev,
+              name: extracted.name || prev.name,
+              description: extracted.description || prev.description,
+              objectives: extracted.objectives || prev.objectives,
+              scope: extracted.scope || prev.scope,
+              timeline: extracted.timeline || prev.timeline,
+          }));
+
+          if (extracted.team && Array.isArray(extracted.team)) {
+              const newTeam = extracted.team.map((t: any, i: number) => ({
+                  id: `team-${Date.now()}-${i}`,
+                  name: t.name || 'Unknown',
+                  role: t.role || 'Member',
+                  skills: t.skills || '',
+                  type: 'Internal',
+                  email: ''
+              }));
+              setTeam(prev => [...prev, ...newTeam]);
+          }
+
+          if (extracted.tasks && Array.isArray(extracted.tasks)) {
+              const newTasks = extracted.tasks.map((t: any, i: number) => ({
+                  id: `task-${Date.now()}-${i}`,
+                  name: t.name || 'Untitled Task',
+                  status: 'Todo',
+                  priority: 'Medium',
+                  startDate: new Date().toISOString().split('T')[0],
+                  dueDate: '',
+                  milestoneId: '',
+                  assigneeId: '',
+                  dependencies: []
+              }));
+              setTasks(prev => [...prev, ...newTasks]);
+          }
+          
+          if (extracted.resources && Array.isArray(extracted.resources)) {
+              const newResources = extracted.resources.map((r: any, i: number) => {
+                  if (r.type === 'People') {
+                      return {
+                          id: `res-${Date.now()}-${i}`,
+                          type: 'People',
+                          personId: r.name || 'Unknown', 
+                          units: 1,
+                          unitType: 'hours',
+                          rate: r.cost || 0,
+                          totalCost: r.cost || 0,
+                          taskId: ''
+                      };
+                  } else {
+                      return {
+                          id: `res-${Date.now()}-${i}`,
+                          type: 'Other',
+                          category: 'AI Extracted',
+                          description: r.name || 'Unknown Resource',
+                          cost: r.cost || 0
+                      };
+                  }
+              });
+              setResources(prev => [...prev, ...newResources] as any);
+          }
+
+          alert("Project details successfully extracted from documentation!");
+
+      } catch (e: any) {
+          if (e.message !== "API_KEY_MISSING") {
+              console.error(e);
+              alert("Failed to extract details from docs.");
+          }
+      } finally {
+          setIsImportingDocs(false);
+      }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'project':
-        return <ProjectForm data={projectData} onChange={setProjectData} />;
+        return <ProjectForm data={projectData} onChange={setProjectData} onImportDocs={handleImportDocsFolder} isImportingDocs={isImportingDocs} />;
       case 'team':
         return <TeamManager team={team} setTeam={setTeam} />;
       case 'wbs':
@@ -267,7 +390,9 @@ function App() {
       case 'risks':
         return <RiskChart project={projectData} risks={risks} setRisks={setRisks} team={team} />;
       case 'docs':
-        return <DocumentView project={projectData} team={team} />;
+        return <DocumentView project={projectData} team={team} journal={journalEntries} setJournal={setJournalEntries} />;
+      case 'insights':
+        return <ProgressInsights tasks={tasks} milestones={milestones} team={team} />;
       case 'gantt':
         return <GanttChart tasks={tasks} milestones={milestones} team={team} />;
       default:

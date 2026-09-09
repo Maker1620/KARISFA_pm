@@ -178,6 +178,69 @@ export const generateCharterContent = async (project: ProjectData, team: TeamMem
     return response.text || "";
 };
 
+export const extractProjectDataFromDocs = async (docsText: string): Promise<any> => {
+    const ai = getAiClient();
+    const prompt = `Analyze the following project documentation and extract the project details, team members, tasks, and resources.
+If any information is missing, leave the field empty or make a reasonable inference based on the text.
+
+DOCUMENTATION:
+${docsText}`;
+
+    const response = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    name: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    objectives: { type: Type.STRING },
+                    scope: { type: Type.STRING },
+                    timeline: { type: Type.STRING },
+                    team: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                name: { type: Type.STRING },
+                                role: { type: Type.STRING },
+                                skills: { type: Type.STRING }
+                            },
+                            required: ["name", "role"]
+                        }
+                    },
+                    tasks: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                name: { type: Type.STRING }
+                            },
+                            required: ["name"]
+                        }
+                    },
+                    resources: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                type: { type: Type.STRING, enum: ['People', 'Service', 'Material', 'Other'] },
+                                name: { type: Type.STRING },
+                                cost: { type: Type.INTEGER }
+                            },
+                            required: ["type", "name"]
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return JSON.parse(response.text || "{}");
+};
+
 export const generateProjectPlan = async (project: ProjectData): Promise<string> => {
     const ai = getAiClient();
     const prompt = `

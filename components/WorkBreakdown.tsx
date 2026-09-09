@@ -167,7 +167,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                 onChange={(e) => setNewTaskDependency(e.target.value)}
                 className="px-3 py-1.5 border border-slate-300 rounded text-sm outline-none focus:border-indigo-500 bg-white text-slate-600 max-w-[150px]"
              >
-                 <option value="">No Dependency</option>
+                 <option value="">No Predecessor</option>
                  {tasks.map(t => (
                      <option key={t.id} value={t.id}>{t.name}</option>
                  ))}
@@ -240,9 +240,9 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                                  const depTask = tasks.find(t => t.id === depId);
                                  if(!depTask) return null;
                                  return (
-                                     <span key={depId} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-slate-600">
-                                         <span className="truncate max-w-[80px]">{depTask.name}</span>
-                                         <button onClick={() => removeDependency(task.id, depId)} className="hover:text-red-500 text-slate-400">
+                                     <span key={depId} className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] ${depTask.status === 'Done' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700 font-semibold'}`}>
+                                         <span className="truncate max-w-[80px]" title={depTask.name}>{depTask.name}</span>
+                                         <button onClick={() => removeDependency(task.id, depId)} className="hover:text-red-900 transition-colors">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                          </button>
                                      </span>
@@ -254,7 +254,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                             onChange={(e) => addDependency(task.id, e.target.value)}
                             className="w-full bg-transparent border border-slate-200 rounded px-2 py-1 text-xs focus:border-indigo-500 outline-none text-slate-400 hover:text-slate-600 transition"
                          >
-                            <option value="">+ Add Dependency</option>
+                            <option value="">+ Add Predecessor</option>
                             {tasks
                                 .filter(t => t.id !== task.id && !task.dependencies?.includes(t.id)) // Filter self and already selected
                                 .map(t => (

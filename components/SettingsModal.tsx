@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getClientId, setStoredClientId, getAppId, setStoredAppId } from '../services/driveService';
+import { getClientId, setStoredClientId, getAppId, setStoredAppId, getApiKey, setStoredApiKey } from '../services/driveService';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -9,17 +9,18 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const [clientId, setClientId] = useState(getClientId() === 'YOUR_CLIENT_ID_HERE' ? '' : getClientId());
     const [appId, setAppId] = useState(getAppId());
+    const [apiKey, setApiKey] = useState(getApiKey());
 
     if (!isOpen) return null;
 
     const handleSave = () => {
         if (clientId) {
             setStoredClientId(clientId);
-            setStoredAppId(appId);
-            // Reload to re-init Google API with new settings
-            window.location.reload();
         }
-        onClose();
+        setStoredAppId(appId);
+        setStoredApiKey(apiKey);
+        // Reload to re-init Google API with new settings
+        window.location.reload();
     };
 
     return (
@@ -72,6 +73,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         />
                         <p className="text-xs text-slate-500 mt-1">
                             Required for the Folder Picker. Found on the Google Cloud Dashboard home page.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1">Google API Key (Optional)</label>
+                        <input 
+                            type="text" 
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
+                            placeholder="AIzaSy..."
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                        />
+                        <p className="text-xs text-slate-500 mt-1">
+                            Used for Google Drive Picker. Leave blank if you don't have one.
                         </p>
                     </div>
                     

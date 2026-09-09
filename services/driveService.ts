@@ -21,14 +21,20 @@ export const setStoredAppId = (id: string) => {
     localStorage.setItem('GOOGLE_APP_ID', id);
 };
 
-const API_KEY = process.env.API_KEY || '';
-// Include Sheets API discovery doc
+export const getApiKey = () => {
+    return localStorage.getItem('GOOGLE_API_KEY') || '';
+};
+
+export const setStoredApiKey = (key: string) => {
+    localStorage.setItem('GOOGLE_API_KEY', key);
+};
+
 const DISCOVERY_DOCS = [
     'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
     'https://sheets.googleapis.com/$discovery/rest?version=v4'
 ];
-// Include Spreadsheets scope and Drive File scope
-const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
+// Include Spreadsheets scope, Drive File scope, and Drive Readonly scope for reading docs
+const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.readonly';
 
 let tokenClient: any;
 let gapiInited = false;
@@ -58,10 +64,15 @@ export const initDriveApi = async (): Promise<boolean> => {
     return new Promise((resolve) => {
         gapi.load('client:picker', async () => {
             try {
-                await gapi.client.init({
-                    apiKey: API_KEY,
+                const initConfig: any = {
                     discoveryDocs: DISCOVERY_DOCS,
-                });
+                };
+                const apiKey = getApiKey();
+                if (apiKey) {
+                    initConfig.apiKey = apiKey;
+                }
+                
+                await gapi.client.init(initConfig);
                 gapiInited = true;
                 pickerInited = true;
                 if (gisInited) resolve(true);
@@ -139,6 +150,8 @@ export const openFolderPicker = async (oauthToken: string): Promise<{id: string,
 
         const appId = getAppId(); // Project Number
 
+        const apiKey = getApiKey();
+
         const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
             .setSelectFolderEnabled(true)
             .setMimeTypes('application/vnd.google-apps.folder');
@@ -146,7 +159,6 @@ export const openFolderPicker = async (oauthToken: string): Promise<{id: string,
         const builder = new google.picker.PickerBuilder()
             .enableFeature(google.picker.Feature.NAV_HIDDEN)
             .setOAuthToken(oauthToken)
-            .setDeveloperKey(API_KEY) // Crucial for Picker to work
             .addView(view)
             .setCallback((data: any) => {
                 if (data.action === google.picker.Action.PICKED) {
@@ -156,6 +168,10 @@ export const openFolderPicker = async (oauthToken: string): Promise<{id: string,
                     resolve(null);
                 }
             });
+            
+        if (apiKey) {
+            builder.setDeveloperKey(apiKey);
+        }
 
         if (appId) {
             builder.setAppId(appId);
@@ -166,6 +182,42 @@ export const openFolderPicker = async (oauthToken: string): Promise<{id: string,
         const picker = builder.build();
         picker.setVisible(true);
     });
+};
+
+export const getFilesInFolder = async (folderId: string): Promise<any[]> => {
+    try {
+        const res = await gapi.client.drive.files.list({
+            q: `'${folderId}' in parents and trashed = false`,
+            fields: 'files(id, name, mimeType)'
+        });
+        return res.result.files || [];
+    } catch (err) {
+        console.error("Error listing files", err);
+        throw err;
+    }
+};
+
+export const getFileText = async (fileId: string, mimeType: string, token: string): Promise<string> => {
+    try {
+        if (mimeType === 'application/vnd.google-apps.document') {
+            const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                return await res.text();
+            }
+        } else if (mimeType.startsWith('text/')) {
+            const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                return await res.text();
+            }
+        }
+    } catch (e) {
+        console.error(`Error reading file ${fileId}`, e);
+    }
+    return "";
 };
 
 /**

@@ -28,6 +28,7 @@ export const Layout: React.FC<LayoutProps> = ({
     { id: 'raci', label: 'RACI Matrix', icon: 'grid' },
     { id: 'risks', label: 'Risk Analysis', icon: 'chart_with_upwards_trend' },
     { id: 'docs', label: 'Plan & Charter', icon: 'page_facing_up' },
+    { id: 'insights', label: 'Progress Insights', icon: 'pie_chart' },
     { id: 'gantt', label: 'Gantt It', icon: 'bar_chart' },
   ];
 
@@ -61,6 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({
                  tab.icon === 'page_facing_up' ? '📑' : 
                  tab.icon === 'card_index_dividers' ? '🗂️' : 
                  tab.icon === 'bar_chart' ? '📅' : 
+                 tab.icon === 'pie_chart' ? '🥧' : 
                  tab.icon === 'money_bag' ? '💰' : '📝'}
               </span>
               {tab.label}
