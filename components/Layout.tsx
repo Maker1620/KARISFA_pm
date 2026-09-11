@@ -38,7 +38,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <aside className="w-64 bg-slate-900 text-slate-100 flex flex-col shadow-xl z-20">
         <div className="p-6 border-b border-slate-700">
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-indigo-500 flex items-center justify-center font-bold text-white">K</div>
+                <div className="w-8 h-8  bg-blue-700 flex items-center justify-center font-bold text-white">K</div>
                 <h1 className="text-xl font-bold tracking-tight">KARISFA PM</h1>
             </div>
             <p className="text-xs text-slate-400 mt-2">AI-Powered Management</p>
@@ -49,9 +49,9 @@ export const Layout: React.FC<LayoutProps> = ({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium  transition-colors duration-200 ${
                 activeTab === tab.id
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-blue-800 text-white shadow-md'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
@@ -72,16 +72,16 @@ export const Layout: React.FC<LayoutProps> = ({
 
         <div className="p-4 border-t border-slate-800 space-y-3">
             {/* Drive Integration Section */}
-            <div className="bg-slate-800 rounded-lg p-3">
+            <div className="bg-slate-800  p-3">
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold text-slate-300">
                         {isSignedIn ? 'Google Drive Active' : 'Offline Mode'}
                     </span>
                     <div className="flex items-center gap-2">
                         {isSignedIn ? (
-                            <span className="w-2 h-2 rounded-full bg-green-500" title="Connected"></span>
+                            <span className="w-2 h-2  bg-green-500" title="Connected"></span>
                         ) : (
-                            <span className="w-2 h-2 rounded-full bg-slate-500" title="Offline"></span>
+                            <span className="w-2 h-2  bg-slate-500" title="Offline"></span>
                         )}
                         <button 
                             onClick={onOpenSettings}
@@ -97,13 +97,13 @@ export const Layout: React.FC<LayoutProps> = ({
                     <div className="space-y-2">
                         <button 
                             onClick={onSave}
-                            className="w-full py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium rounded hover:bg-slate-600 transition border border-slate-600 mb-2"
+                            className="w-full py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600 mb-2"
                         >
                             Save Locally
                         </button>
                         <button 
                             onClick={onSignIn}
-                            className="w-full py-1.5 px-2 bg-white text-slate-900 text-xs font-medium rounded hover:bg-slate-100 transition flex items-center justify-center gap-2"
+                            className="w-full py-1.5 px-2 bg-white text-slate-900 text-xs font-medium  hover:bg-slate-100 transition flex items-center justify-center gap-2"
                         >
                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" className="w-3 h-3" alt="Drive" />
                            Connect Drive
@@ -114,17 +114,17 @@ export const Layout: React.FC<LayoutProps> = ({
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        <div className="bg-slate-900/50 rounded p-2 border border-slate-700">
+                        <div className="bg-slate-900/50  p-2 border border-slate-700">
                            <p className="text-[10px] text-slate-400 mb-1">Sync Location:</p>
                            {selectedFolderName ? (
-                               <div className="flex items-center gap-1.5 text-indigo-400 text-xs font-semibold truncate">
+                               <div className="flex items-center gap-1.5 text-blue-500 text-xs font-semibold truncate">
                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                                    <span className="truncate">{selectedFolderName}</span>
                                </div>
                            ) : (
                                <p className="text-xs text-slate-500 italic">No folder selected</p>
                            )}
-                           <button onClick={onPickFolder} className="text-[10px] text-indigo-400 hover:text-indigo-300 underline mt-1">
+                           <button onClick={onPickFolder} className="text-[10px] text-blue-500 hover:text-slate-400 underline mt-1">
                                {selectedFolderName ? 'Change Folder' : 'Select Folder'}
                            </button>
                         </div>
@@ -132,7 +132,7 @@ export const Layout: React.FC<LayoutProps> = ({
                         <button 
                             onClick={onSave}
                             disabled={!selectedFolderName}
-                            className="w-full py-1.5 px-2 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-1.5 px-2 bg-blue-800 text-white text-xs font-medium  hover:bg-blue-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Sync to Drive
                         </button>
@@ -141,17 +141,17 @@ export const Layout: React.FC<LayoutProps> = ({
             </div>
 
             {/* Local Save Section */}
-            <div className="bg-slate-800 rounded-lg p-3">
+            <div className="bg-slate-800  p-3">
                 <span className="text-xs font-semibold text-slate-300 block mb-2">Import / Export</span>
                 <div className="flex gap-2">
                     <button 
                         onClick={onExport}
-                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium rounded hover:bg-slate-600 transition border border-slate-600"
+                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600"
                         title="Download Project JSON"
                     >
                         Export JSON
                     </button>
-                    <label className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium rounded hover:bg-slate-600 transition border border-slate-600 text-center cursor-pointer">
+                    <label className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600 text-center cursor-pointer">
                         Import
                         <input type="file" accept=".json" className="hidden" onChange={onImport} />
                     </label>
@@ -160,7 +160,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
             <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-700">
                 <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${isAiActive ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                    <div className={`w-2 h-2  ${isAiActive ? 'bg-green-500' : 'bg-amber-500'}`}></div>
                     <span className={isAiActive ? 'text-slate-300' : 'text-amber-500'}>
                         {isAiActive ? 'AI Active' : 'AI Key Needed (Free)'}
                     </span>

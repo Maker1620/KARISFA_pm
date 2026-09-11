@@ -65,7 +65,7 @@ export const RaciMatrix: React.FC<RaciMatrixProps> = ({ data, setData, team, pro
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+      <div className="flex justify-between items-center bg-white p-4  shadow-sm border border-slate-200">
         <div>
           <h3 className="text-lg font-bold text-slate-800">Responsibility Assignment Matrix</h3>
           <p className="text-sm text-slate-500">Define who is Responsible, Accountable, Consulted, and Informed.</p>
@@ -73,7 +73,7 @@ export const RaciMatrix: React.FC<RaciMatrixProps> = ({ data, setData, team, pro
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition shadow-sm"
+          className="flex items-center gap-2 px-6 py-2.5 bg-blue-800 text-white  font-medium hover:bg-blue-900 disabled:opacity-50 transition shadow-sm"
         >
           {loading ? (
              <>
@@ -92,13 +92,13 @@ export const RaciMatrix: React.FC<RaciMatrixProps> = ({ data, setData, team, pro
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-100">
+        <div className="p-4 bg-red-50 text-red-700  border border-red-100">
           {error}
         </div>
       )}
 
       {data.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto">
+        <div className="bg-white  shadow-sm border border-slate-200 overflow-hidden overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
               <tr>
@@ -122,7 +122,7 @@ export const RaciMatrix: React.FC<RaciMatrixProps> = ({ data, setData, team, pro
                       <select
                         value={row.assignments[member.id] || RaciRole.None}
                         onChange={(e) => updateAssignment(row.id, member.id, e.target.value as RaciRole)}
-                        className={`px-3 py-1.5 rounded-md border text-center font-bold cursor-pointer outline-none focus:ring-2 focus:ring-indigo-500 appearance-none ${getRoleColor(row.assignments[member.id])}`}
+                        className={`px-3 py-1.5  border text-center font-bold cursor-pointer outline-none focus:ring-2 focus:ring-blue-700 appearance-none ${getRoleColor(row.assignments[member.id])}`}
                       >
                         {Object.values(RaciRole).map(role => (
                           <option key={role} value={role}>{role}</option>
@@ -138,7 +138,7 @@ export const RaciMatrix: React.FC<RaciMatrixProps> = ({ data, setData, team, pro
       )}
       
       {data.length === 0 && !loading && (
-        <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-slate-200">
+        <div className="text-center py-20 bg-white  border-2 border-dashed border-slate-200">
            <div className="text-5xl mb-4">📊</div>
            <p className="text-slate-500">No RACI matrix generated yet.</p>
            <p className="text-slate-400 text-sm mt-1">Fill in project details and team members, then click Generate.</p>

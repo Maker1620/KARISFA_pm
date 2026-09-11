@@ -156,34 +156,34 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
   return (
     <div className="h-full flex flex-col space-y-6">
        <div className="flex justify-between items-center flex-wrap gap-4">
-           <div className="flex bg-slate-200 p-1 rounded-lg">
+           <div className="flex bg-slate-200 p-1 ">
                <button 
                   onClick={() => setActiveDoc('charter')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeDoc === 'charter' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`px-4 py-2 text-sm font-medium  transition-all ${activeDoc === 'charter' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                >
                    Project Charter
                </button>
                <button 
                   onClick={() => setActiveDoc('plan')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeDoc === 'plan' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`px-4 py-2 text-sm font-medium  transition-all ${activeDoc === 'plan' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                >
                    Project Plan
                </button>
                <button 
                   onClick={() => setActiveDoc('status')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeDoc === 'status' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`px-4 py-2 text-sm font-medium  transition-all ${activeDoc === 'status' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                >
                    Status Report
                </button>
                <button 
                   onClick={() => setActiveDoc('journal')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeDoc === 'journal' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`px-4 py-2 text-sm font-medium  transition-all ${activeDoc === 'journal' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                >
                    Project Journal
                </button>
                <button 
                   onClick={() => setActiveDoc('minutes')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeDoc === 'minutes' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`px-4 py-2 text-sm font-medium  transition-all ${activeDoc === 'minutes' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
                >
                    Meeting Minutes
                </button>
@@ -194,7 +194,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                    <button
                        onClick={handleDownloadPDF}
                        disabled={isDownloading}
-                       className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50 transition"
+                       className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium  hover:bg-slate-50 disabled:opacity-50 transition"
                    >
                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                        {isDownloading ? 'Generating...' : 'Download PDF Report'}
@@ -204,7 +204,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                  <button
                   onClick={handleGenerate}
                   disabled={loading || !project.name}
-                  className="flex items-center gap-2 px-5 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 disabled:opacity-50 transition"
+                  className="flex items-center gap-2 px-5 py-2 bg-slate-900 text-white text-sm font-medium  hover:bg-slate-800 disabled:opacity-50 transition"
                  >
                     {loading ? 'Drafting...' : `Generate ${activeDoc === 'charter' ? 'Charter' : activeDoc === 'plan' ? 'Plan' : 'Status'}`}
                  </button>
@@ -212,7 +212,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
            </div>
        </div>
 
-       <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+       <div className="flex-1 bg-white  shadow-sm border border-slate-200 overflow-hidden flex flex-col">
            {activeDoc === 'minutes' ? (
                <div className="flex-1 flex flex-col overflow-hidden">
                    {isCreatingMinute ? (
@@ -227,19 +227,19 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                    value={newMinuteTitle}
                                    onChange={(e) => setNewMinuteTitle(e.target.value)}
                                    placeholder="Meeting Title (e.g. Weekly Sync)"
-                                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                                   className="w-full px-4 py-2 border border-slate-300  focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none"
                                />
                                <textarea 
                                    value={newMinuteNotes}
                                    onChange={(e) => setNewMinuteNotes(e.target.value)}
                                    placeholder="Paste raw meeting notes, transcript, or rough bullet points here..."
-                                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none h-48 font-mono text-sm"
+                                   className="w-full px-4 py-3 border border-slate-300  focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none resize-none h-48 font-mono text-sm"
                                />
                                <div className="flex justify-end">
                                    <button 
                                        onClick={handleExtractActionItems}
                                        disabled={!newMinuteNotes.trim() || extractingAI}
-                                       className="px-5 py-2 bg-indigo-100 text-indigo-700 font-medium rounded-lg hover:bg-indigo-200 disabled:opacity-50 transition flex items-center gap-2"
+                                       className="px-5 py-2 bg-slate-200 text-blue-900 font-medium  hover:bg-slate-300 disabled:opacity-50 transition flex items-center gap-2"
                                    >
                                        {extractingAI ? '✨ Extracting...' : '✨ AI Extract Action Items'}
                                    </button>
@@ -250,17 +250,17 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                        <h4 className="font-semibold text-slate-800 mb-3">Extracted Action Items</h4>
                                        <div className="space-y-3">
                                            {newMinuteActionItems.map(item => (
-                                               <div key={item.id} className="flex gap-2 items-start bg-slate-50 p-3 rounded border border-slate-200">
+                                               <div key={item.id} className="flex gap-2 items-start bg-slate-50 p-3  border border-slate-200">
                                                    <input 
                                                        type="text" 
                                                        value={item.description}
                                                        onChange={(e) => handleUpdateNewActionItem(item.id, { description: e.target.value })}
-                                                       className="flex-1 bg-transparent border-none focus:ring-1 focus:ring-indigo-500 p-1 rounded"
+                                                       className="flex-1 bg-transparent border-none focus:ring-1 focus:ring-blue-700 p-1 "
                                                    />
                                                    <select 
                                                        value={item.assigneeId || ''}
                                                        onChange={(e) => handleUpdateNewActionItem(item.id, { assigneeId: e.target.value })}
-                                                       className="w-32 bg-white border border-slate-200 rounded px-2 py-1 text-xs outline-none"
+                                                       className="w-32 bg-white border border-slate-200  px-2 py-1 text-xs outline-none"
                                                    >
                                                        <option value="">Unassigned</option>
                                                        {team.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -268,7 +268,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                                    <select 
                                                        value={item.linkedTaskId || ''}
                                                        onChange={(e) => handleUpdateNewActionItem(item.id, { linkedTaskId: e.target.value })}
-                                                       className="w-40 bg-white border border-slate-200 rounded px-2 py-1 text-xs outline-none"
+                                                       className="w-40 bg-white border border-slate-200  px-2 py-1 text-xs outline-none"
                                                    >
                                                        <option value="">No Linked Task</option>
                                                        {tasks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -286,7 +286,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                     <button 
                                        onClick={handleSaveMeetingMinute}
                                        disabled={!newMinuteTitle.trim()}
-                                       className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
+                                       className="px-6 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 disabled:opacity-50 transition"
                                    >
                                        Save Meeting Minutes
                                    </button>
@@ -302,7 +302,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                </div>
                                <button 
                                    onClick={() => setIsCreatingMinute(true)}
-                                   className="px-5 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition"
+                                   className="px-5 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 transition"
                                >
                                    + New Meeting Note
                                </button>
@@ -315,11 +315,11 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                    </div>
                                ) : (
                                    meetingMinutes.map(minute => (
-                                       <div key={minute.id} className="border border-slate-200 rounded-lg p-5 relative group hover:border-slate-300 transition-colors">
+                                       <div key={minute.id} className="border border-slate-200  p-5 relative group hover:border-slate-300 transition-colors">
                                            <div className="flex justify-between items-start mb-3">
                                                <div>
                                                    <h4 className="font-bold text-slate-800">{minute.title}</h4>
-                                                   <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded mt-1 inline-block">
+                                                   <span className="text-xs font-semibold text-blue-800 bg-slate-50 px-2 py-1  mt-1 inline-block">
                                                        {new Date(minute.date).toLocaleDateString()}
                                                    </span>
                                                </div>
@@ -331,7 +331,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                                                </button>
                                            </div>
-                                           <div className="text-slate-600 text-sm whitespace-pre-wrap mb-4 bg-slate-50 p-3 rounded">
+                                           <div className="text-slate-600 text-sm whitespace-pre-wrap mb-4 bg-slate-50 p-3 ">
                                                {minute.rawNotes}
                                            </div>
                                            {minute.actionItems && minute.actionItems.length > 0 && (
@@ -339,8 +339,8 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                                    <h5 className="font-semibold text-slate-700 text-sm mb-2">Action Items:</h5>
                                                    <ul className="space-y-2">
                                                        {minute.actionItems.map(item => (
-                                                           <li key={item.id} className="flex items-start gap-2 text-sm bg-white border border-slate-100 p-2 rounded shadow-sm">
-                                                               <span className="text-indigo-500 mt-0.5">
+                                                           <li key={item.id} className="flex items-start gap-2 text-sm bg-white border border-slate-100 p-2  shadow-sm">
+                                                               <span className="text-blue-700 mt-0.5">
                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                                                                </span>
                                                                <div className="flex-1">
@@ -382,13 +382,13 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                                value={newJournalEntry}
                                onChange={(e) => setNewJournalEntry(e.target.value)}
                                placeholder="What's the latest update?"
-                               className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"
+                               className="flex-1 px-4 py-3 border border-slate-300  focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none resize-none"
                                rows={3}
                            />
                            <button 
                                onClick={handleAddJournal}
                                disabled={!newJournalEntry.trim()}
-                               className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
+                               className="px-6 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 disabled:opacity-50 transition"
                            >
                                Add Note
                            </button>
@@ -402,9 +402,9 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                            </div>
                        ) : (
                            journal.map(entry => (
-                               <div key={entry.id} className="border border-slate-200 rounded-lg p-5 relative group hover:border-slate-300 transition-colors">
+                               <div key={entry.id} className="border border-slate-200  p-5 relative group hover:border-slate-300 transition-colors">
                                    <div className="flex justify-between items-start mb-3">
-                                       <span className="text-sm font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                                       <span className="text-sm font-semibold text-blue-800 bg-slate-50 px-2 py-1 ">
                                            {new Date(entry.date).toLocaleDateString()} at {new Date(entry.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                        </span>
                                        <button 
@@ -431,7 +431,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
                </div>
            ) : (
                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-12 text-center">
-                   <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-2xl">
+                   <div className="w-16 h-16 bg-slate-50  flex items-center justify-center mb-4 text-2xl">
                        {activeDoc === 'charter' ? '📜' : activeDoc === 'plan' ? '🗓️' : '📊'}
                    </div>
                    <h3 className="text-lg font-medium text-slate-600 mb-1">No Document Generated</h3>

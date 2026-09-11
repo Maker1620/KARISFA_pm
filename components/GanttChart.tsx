@@ -10,7 +10,7 @@ interface GanttChartProps {
 export const GanttChart: React.FC<GanttChartProps> = ({ tasks, milestones, team }) => {
   if (tasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-slate-400 py-20 bg-white rounded-xl border border-slate-200">
+      <div className="flex flex-col items-center justify-center h-full text-slate-400 py-20 bg-white  border border-slate-200">
         <span className="text-4xl mb-4">📊</span>
         <h3 className="text-lg font-medium text-slate-600">No Tasks to Display</h3>
         <p>Add tasks with Start and Due dates in the Work Breakdown tab to see the Gantt chart.</p>
@@ -79,16 +79,16 @@ export const GanttChart: React.FC<GanttChartProps> = ({ tasks, milestones, team 
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+    <div className="bg-white  shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
       <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
         <div>
            <h3 className="text-lg font-bold text-slate-800">Project Gantt Chart</h3>
            <p className="text-xs text-slate-500">Visual timeline of tasks and milestones.</p>
         </div>
         <div className="flex gap-4 text-xs">
-            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-red-400 rounded"></div> High</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-yellow-400 rounded"></div> Medium</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-green-400 rounded"></div> Low</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-red-400 "></div> High</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-yellow-400 "></div> Medium</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-green-400 "></div> Low</div>
         </div>
       </div>
       
@@ -120,7 +120,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({ tasks, milestones, team 
                               <div className="flex gap-2 text-[10px]">
                                 <span className="text-slate-500">{assignee ? assignee.name.split(' ')[0] : 'Unassigned'}</span>
                                 {task.milestoneId && (
-                                    <span className="text-indigo-500 font-bold truncate max-w-[80px]">
+                                    <span className="text-blue-700 font-bold truncate max-w-[80px]">
                                         MS: {milestones.find(m => m.id === task.milestoneId)?.name || 'Unknown'}
                                     </span>
                                 )}
@@ -138,14 +138,14 @@ export const GanttChart: React.FC<GanttChartProps> = ({ tasks, milestones, team 
 
                               {/* The Gantt Bar */}
                               <div 
-                                className="absolute top-2 h-6 rounded shadow-sm border opacity-90 transition hover:opacity-100 hover:shadow-md cursor-pointer z-0 group"
+                                className="absolute top-2 h-6  shadow-sm border opacity-90 transition hover:opacity-100 hover:shadow-md cursor-pointer z-0 group"
                                 style={{
                                     ...getBarStyles(task),
                                     display: 'grid', // to allow grid positioning
                                 }}
                               >
                                  <div 
-                                    className={`h-full w-full rounded ${getPriorityColor(task.priority)}`}
+                                    className={`h-full w-full  ${getPriorityColor(task.priority)}`}
                                  ></div>
                               </div>
                           </div>
@@ -157,7 +157,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({ tasks, milestones, team 
 
         {/* Improved Table Implementation */}
         <div className="mt-8">
-            <div className="relative min-w-full overflow-x-auto border border-slate-200 rounded-lg bg-white mt-[-2rem] z-30">
+            <div className="relative min-w-full overflow-x-auto border border-slate-200  bg-white mt-[-2rem] z-30">
                  <div style={{ width: `${250 + (totalDays * 40)}px` }}>
                      <div className="flex bg-slate-100 border-b border-slate-200">
                          <div className="w-[250px] shrink-0 p-2 font-bold text-xs text-slate-700 sticky left-0 bg-slate-100 z-20 border-r border-slate-200">Task Details</div>
@@ -182,13 +182,13 @@ export const GanttChart: React.FC<GanttChartProps> = ({ tasks, milestones, team 
                                      <div className="font-semibold text-xs text-slate-800 truncate">{task.name}</div>
                                      <div className="flex gap-2 text-[10px] mt-0.5">
                                         {assignee && <span className="text-slate-500">{assignee.name.split(' ')[0]}</span>}
-                                        {milestone && <span className="text-indigo-600 bg-indigo-50 px-1 rounded">MS: {milestone.name}</span>}
+                                        {milestone && <span className="text-blue-800 bg-slate-50 px-1 ">MS: {milestone.name}</span>}
                                      </div>
                                  </div>
                                  <div className="flex-1 relative" style={{ backgroundImage: 'repeating-linear-gradient(to right, transparent, transparent 39px, #f1f5f9 40px)' }}>
                                      {/* Bar */}
                                      <div 
-                                        className={`absolute top-2 h-8 rounded border shadow-sm flex items-center px-2 text-[10px] text-white font-medium whitespace-nowrap overflow-hidden ${getPriorityColor(task.priority)}`}
+                                        className={`absolute top-2 h-8  border shadow-sm flex items-center px-2 text-[10px] text-white font-medium whitespace-nowrap overflow-hidden ${getPriorityColor(task.priority)}`}
                                         style={{
                                             left: `${left}px`,
                                             width: `${width}px`

@@ -189,7 +189,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
     
     return (
         <div className="space-y-6 pb-12">
-            <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="flex justify-between items-center bg-slate-50 p-4  border border-slate-200">
                 <div>
                     <h2 className="text-lg font-bold text-slate-800">Progress Insights Dashboard</h2>
                     <p className="text-sm text-slate-500">Live overview of project status, key milestones, and financial metrics.</p>
@@ -197,7 +197,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                 <button
                     onClick={handleDownloadPDF}
                     disabled={isDownloading || totalTasks === 0}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50 transition shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium  hover:bg-slate-50 disabled:opacity-50 transition shadow-sm"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     {isDownloading ? 'Generating PDF...' : 'Download PDF Report'}
@@ -207,21 +207,21 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
             <div ref={contentRef} className="space-y-6">
                 {/* KPI Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="bg-white border border-slate-200  p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500 mb-1">Total Tasks</p>
                     <p className="text-3xl font-bold text-slate-800">{totalTasks}</p>
                 </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="bg-white border border-slate-200  p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500 mb-1">Completed Tasks</p>
                     <p className="text-3xl font-bold text-green-600">{completedTasks}</p>
                 </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="bg-white border border-slate-200  p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500 mb-1">Completion Rate</p>
                     <div className="flex items-end gap-2">
-                        <p className="text-3xl font-bold text-indigo-600">{completionRate}%</p>
+                        <p className="text-3xl font-bold text-blue-800">{completionRate}%</p>
                     </div>
                 </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="bg-white border border-slate-200  p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500 mb-1">Budget Utilized</p>
                     <div className="flex items-end gap-2">
                         <p className={`text-3xl font-bold ${budgetUtilization > 100 ? 'text-red-600' : 'text-slate-800'}`}>
@@ -235,7 +235,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
             </div>
 
             {totalTasks === 0 ? (
-                <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-500">
+                <div className="bg-white border border-slate-200  p-12 text-center text-slate-500">
                     <p className="text-lg">No task data available.</p>
                     <p className="text-sm mt-1">Add tasks in the Work Breakdown section to see insights.</p>
                 </div>
@@ -243,7 +243,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     {/* Burn-up Chart + Velocity */}
-                    <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                    <div className="lg:col-span-2 bg-white border border-slate-200  p-6 shadow-sm">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Velocity & Scope Burn-up</h3>
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
@@ -278,7 +278,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                     </div>
 
                     {/* Status Pie Chart */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                    <div className="bg-white border border-slate-200  p-6 shadow-sm">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Task Status</h3>
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
@@ -307,7 +307,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                     </div>
 
                     {/* Assignee Workload & Capacity */}
-                    <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                    <div className="lg:col-span-2 bg-white border border-slate-200  p-6 shadow-sm">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Team Capacity & Workload</h3>
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
@@ -325,14 +325,14 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
                                     <Bar dataKey="Todo" stackId="a" fill={COLORS.Todo} radius={[0, 0, 0, 0]} />
                                     <Bar dataKey="In Progress" stackId="a" fill={COLORS['In Progress']} radius={[0, 0, 0, 0]} />
-                                    <Bar dataKey="Done" stackId="a" fill={COLORS.Done} radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="Done" stackId="a" fill={COLORS.Done} radius={[0, 0, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
                     {/* Deliverable Progress */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden flex flex-col">
+                    <div className="bg-white border border-slate-200  p-6 shadow-sm overflow-hidden flex flex-col">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Deliverable Progress</h3>
                         <div className="flex-1 overflow-y-auto pr-2 space-y-4">
                             {deliverableProgress.length === 0 ? (
@@ -344,9 +344,9 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                                             <span className="font-medium text-slate-700 truncate pr-2" title={del.name}>{del.name}</span>
                                             <span className="text-xs font-bold text-slate-500">{del.percent}%</span>
                                         </div>
-                                        <div className="w-full bg-slate-100 rounded-full h-2">
+                                        <div className="w-full bg-slate-100  h-2">
                                             <div 
-                                                className={`h-2 rounded-full ${del.percent === 100 ? 'bg-green-400' : 'bg-indigo-500'}`} 
+                                                className={`h-2  ${del.percent === 100 ? 'bg-green-400' : 'bg-blue-700'}`} 
                                                 style={{ width: `${del.percent}%` }}
                                             ></div>
                                         </div>

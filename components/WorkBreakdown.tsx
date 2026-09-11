@@ -136,7 +136,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
     <div className="space-y-12 pb-12">
       
       {/* --- TASKS SECTION (TOP) --- */}
-      <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <section className="bg-white  shadow-sm border border-slate-200 overflow-hidden">
         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
           <div>
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -150,13 +150,13 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                value={newTaskName}
                onChange={(e) => setNewTaskName(e.target.value)}
                placeholder="New Task Name"
-               className="flex-1 sm:flex-none px-3 py-1.5 border border-slate-300 rounded text-sm outline-none focus:border-indigo-500 bg-white text-slate-600 placeholder:text-slate-400 min-w-[200px]"
+               className="flex-1 sm:flex-none px-3 py-1.5 border border-slate-300  text-sm outline-none focus:border-blue-700 bg-white text-slate-600 placeholder:text-slate-400 min-w-[200px]"
                onKeyDown={(e) => e.key === 'Enter' && addTask()}
              />
              <select
                 value={newTaskPriority}
                 onChange={(e) => setNewTaskPriority(e.target.value as any)}
-                className="px-3 py-1.5 border border-slate-300 rounded text-sm outline-none focus:border-indigo-500 bg-white text-slate-600 w-28"
+                className="px-3 py-1.5 border border-slate-300  text-sm outline-none focus:border-blue-700 bg-white text-slate-600 w-28"
              >
                  <option value="High">High</option>
                  <option value="Medium">Medium</option>
@@ -165,14 +165,14 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
              <select
                 value={newTaskDependency}
                 onChange={(e) => setNewTaskDependency(e.target.value)}
-                className="px-3 py-1.5 border border-slate-300 rounded text-sm outline-none focus:border-indigo-500 bg-white text-slate-600 max-w-[150px]"
+                className="px-3 py-1.5 border border-slate-300  text-sm outline-none focus:border-blue-700 bg-white text-slate-600 max-w-[150px]"
              >
                  <option value="">No Predecessor</option>
                  {tasks.map(t => (
                      <option key={t.id} value={t.id}>{t.name}</option>
                  ))}
              </select>
-             <button onClick={addTask} disabled={!newTaskName} className="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition shrink-0">Add Task</button>
+             <button onClick={addTask} disabled={!newTaskName} className="bg-blue-800 text-white px-3 py-1.5  text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition shrink-0">Add Task</button>
           </div>
         </div>
         
@@ -215,7 +215,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                           <select
                             value={task.priority}
                             onChange={(e) => updateTask(task.id, { priority: e.target.value as any })}
-                            className={`w-full text-xs font-semibold px-2 py-1 rounded border appearance-none cursor-pointer outline-none ${getPriorityColor(task.priority)}`}
+                            className={`w-full text-xs font-semibold px-2 py-1  border appearance-none cursor-pointer outline-none ${getPriorityColor(task.priority)}`}
                           >
                              <option value="High">High</option>
                              <option value="Medium">Medium</option>
@@ -226,7 +226,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                          <select 
                             value={task.milestoneId || ''}
                             onChange={(e) => updateTask(task.id, { milestoneId: e.target.value })}
-                            className="w-full bg-transparent border border-slate-200 rounded px-2 py-1 text-xs focus:border-indigo-500 outline-none text-slate-600"
+                            className="w-full bg-transparent border border-slate-200  px-2 py-1 text-xs focus:border-blue-700 outline-none text-slate-600"
                          >
                             <option value="">-- No Milestone --</option>
                             {milestones.map(m => (
@@ -240,7 +240,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                                  const depTask = tasks.find(t => t.id === depId);
                                  if(!depTask) return null;
                                  return (
-                                     <span key={depId} className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] ${depTask.status === 'Done' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700 font-semibold'}`}>
+                                     <span key={depId} className={`inline-flex items-center gap-1 px-1.5 py-0.5  border text-[10px] ${depTask.status === 'Done' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700 font-semibold'}`}>
                                          <span className="truncate max-w-[80px]" title={depTask.name}>{depTask.name}</span>
                                          <button onClick={() => removeDependency(task.id, depId)} className="hover:text-red-900 transition-colors">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -252,7 +252,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                          <select 
                             value=""
                             onChange={(e) => addDependency(task.id, e.target.value)}
-                            className="w-full bg-transparent border border-slate-200 rounded px-2 py-1 text-xs focus:border-indigo-500 outline-none text-slate-400 hover:text-slate-600 transition"
+                            className="w-full bg-transparent border border-slate-200  px-2 py-1 text-xs focus:border-blue-700 outline-none text-slate-400 hover:text-slate-600 transition"
                          >
                             <option value="">+ Add Predecessor</option>
                             {tasks
@@ -266,7 +266,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                          <select 
                             value={task.assigneeId || ''}
                             onChange={(e) => updateTask(task.id, { assigneeId: e.target.value })}
-                            className="w-full bg-transparent border border-slate-200 rounded px-2 py-1 text-xs focus:border-indigo-500 outline-none text-slate-600"
+                            className="w-full bg-transparent border border-slate-200  px-2 py-1 text-xs focus:border-blue-700 outline-none text-slate-600"
                          >
                             <option value="">Unassigned</option>
                             {team.map(t => (
@@ -301,7 +301,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                                 value={task.status}
                                 disabled={blocked && task.status === 'Todo'} // Prevent starting if blocked, but allow moving back if needed
                                 onChange={(e) => updateTask(task.id, { status: e.target.value as any })}
-                                className={`w-full px-2 py-1 rounded text-xs font-bold appearance-none cursor-pointer border ${
+                                className={`w-full px-2 py-1  text-xs font-bold appearance-none cursor-pointer border ${
                                    task.status === 'Done' ? 'bg-green-100 text-green-700 border-green-200' : 
                                    blocked ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' :
                                    task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white text-slate-600 border-slate-200'
@@ -332,9 +332,9 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
 
 
       {/* --- MILESTONES SECTION (MIDDLE) --- */}
-      <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-        <div className="bg-indigo-50/30 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
+      <section className="bg-white  shadow-sm border border-slate-200 overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-1 h-full bg-blue-700"></div>
+        <div className="bg-slate-50/30 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
           <div>
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                🚩 Milestones
@@ -347,10 +347,10 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                value={newMilestoneName}
                onChange={(e) => setNewMilestoneName(e.target.value)}
                placeholder="New Milestone Name"
-               className="px-3 py-1.5 border border-slate-300 rounded text-sm outline-none focus:border-indigo-500 bg-white text-slate-600 placeholder:text-slate-400"
+               className="px-3 py-1.5 border border-slate-300  text-sm outline-none focus:border-blue-700 bg-white text-slate-600 placeholder:text-slate-400"
                onKeyDown={(e) => e.key === 'Enter' && addMilestone()}
              />
-             <button onClick={addMilestone} disabled={!newMilestoneName} className="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition">Add Milestone</button>
+             <button onClick={addMilestone} disabled={!newMilestoneName} className="bg-blue-800 text-white px-3 py-1.5  text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition">Add Milestone</button>
           </div>
         </div>
         
@@ -379,7 +379,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                          <select 
                             value={ms.deliverableId || ''}
                             onChange={(e) => updateMilestone(ms.id, { deliverableId: e.target.value })}
-                            className="w-full bg-transparent border border-slate-200 rounded px-2 py-1 text-xs focus:border-indigo-500 outline-none text-slate-600"
+                            className="w-full bg-transparent border border-slate-200  px-2 py-1 text-xs focus:border-blue-700 outline-none text-slate-600"
                          >
                             <option value="">-- No Deliverable --</option>
                             {deliverables.map(d => (
@@ -413,7 +413,7 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
       </section>
 
       {/* --- DELIVERABLES SECTION (BOTTOM) --- */}
-      <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+      <section className="bg-white  shadow-sm border border-slate-200 overflow-hidden relative">
         <div className="absolute top-0 left-0 w-1 h-full bg-slate-800"></div>
         <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
           <div>
@@ -428,10 +428,10 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                value={newDeliverableName}
                onChange={(e) => setNewDeliverableName(e.target.value)}
                placeholder="New Deliverable Name"
-               className="px-3 py-1.5 border border-slate-300 rounded text-sm outline-none focus:border-indigo-500 bg-white text-slate-600 placeholder:text-slate-400"
+               className="px-3 py-1.5 border border-slate-300  text-sm outline-none focus:border-blue-700 bg-white text-slate-600 placeholder:text-slate-400"
                onKeyDown={(e) => e.key === 'Enter' && addDeliverable()}
              />
-             <button onClick={addDeliverable} disabled={!newDeliverableName} className="bg-slate-800 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition">Add Deliverable</button>
+             <button onClick={addDeliverable} disabled={!newDeliverableName} className="bg-slate-800 text-white px-3 py-1.5  text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition">Add Deliverable</button>
           </div>
         </div>
         

@@ -88,12 +88,12 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
       return '#22c55e'; // Low Risk (Green)
   };
 
-  const inputClass = "w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400";
+  const inputClass = "w-full px-3 py-2  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400";
   const labelClass = "block text-xs font-semibold text-slate-500 uppercase mb-1";
 
   return (
     <div className="space-y-6">
-       <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+       <div className="flex justify-between items-center bg-white p-6  shadow-sm border border-slate-200">
          <div>
             <h3 className="text-lg font-bold text-slate-800">Risk Management Log</h3>
             <p className="text-sm text-slate-500">Log, assess, and mitigate project risks.</p>
@@ -101,7 +101,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
          <button
            onClick={handleGenerate}
            disabled={loading || !project.description}
-           className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition flex items-center gap-2 shadow-sm"
+           className="px-6 py-2 bg-blue-800 text-white  font-medium hover:bg-blue-900 disabled:opacity-50 transition flex items-center gap-2 shadow-sm"
          >
            {loading ? 'Analyzing...' : <><span>✨</span> Identify with AI</>}
          </button>
@@ -109,7 +109,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
 
        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Chart Area */}
-          <div className="xl:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-[500px]">
+          <div className="xl:col-span-2 bg-white p-6  shadow-sm border border-slate-200 h-[500px]">
              <h4 className="font-semibold text-slate-700 mb-4">Probability vs. Impact Matrix</h4>
              {risks.length > 0 ? (
                  <ResponsiveContainer width="100%" height="90%">
@@ -123,11 +123,11 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
                               const data = payload[0].payload;
                               const owner = team.find(t => t.id === data.ownerId);
                               return (
-                                  <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg">
+                                  <div className="bg-white p-3 border border-slate-200 shadow-lg ">
                                       <p className="font-bold text-slate-800">{data.name}</p>
                                       <p className="text-sm">Prob: {data.probability}% | Impact: {data.impact}%</p>
                                       <p className="text-xs text-slate-500 mt-1">Status: {data.status}</p>
-                                      {owner && <p className="text-xs text-indigo-600 font-medium">Owner: {owner.name}</p>}
+                                      {owner && <p className="text-xs text-blue-800 font-medium">Owner: {owner.name}</p>}
                                   </div>
                               );
                           }
@@ -148,7 +148,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
           </div>
 
           {/* Add Risk Form */}
-          <div className="xl:col-span-1 bg-slate-50 p-6 rounded-xl shadow-inner border border-slate-200 h-[500px] overflow-y-auto">
+          <div className="xl:col-span-1 bg-slate-50 p-6  shadow-inner border border-slate-200 h-[500px] overflow-y-auto">
              <h4 className="font-semibold text-slate-800 mb-4">Log New Risk</h4>
              <div className="space-y-4">
                  <div>
@@ -167,7 +167,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
                         <label className={labelClass}>Probability: {formState.probability}%</label>
                         <input 
                             type="range" min="0" max="100" 
-                            className="w-full accent-indigo-600"
+                            className="w-full accent-blue-800"
                             value={formState.probability}
                             onChange={e => setFormState({...formState, probability: Number(e.target.value)})}
                         />
@@ -176,7 +176,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
                         <label className={labelClass}>Impact: {formState.impact}%</label>
                         <input 
                             type="range" min="0" max="100" 
-                            className="w-full accent-indigo-600"
+                            className="w-full accent-blue-800"
                             value={formState.impact}
                             onChange={e => setFormState({...formState, impact: Number(e.target.value)})}
                         />
@@ -226,7 +226,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
                  <button 
                     onClick={handleAddRisk}
                     disabled={!formState.name}
-                    className="w-full py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition mt-2 shadow-sm"
+                    className="w-full py-2 bg-blue-800 text-white  font-medium hover:bg-blue-900 disabled:opacity-50 transition mt-2 shadow-sm"
                  >
                      Add Risk
                  </button>
@@ -235,7 +235,7 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
        </div>
 
        {/* Risk Registry Table */}
-       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+       <div className="bg-white  shadow-sm border border-slate-200 overflow-hidden">
            <div className="px-6 py-4 border-b border-slate-200">
                <h4 className="font-bold text-slate-800">Risk Registry</h4>
            </div>
@@ -262,14 +262,14 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
                                    <td className="px-4 py-3 text-center text-slate-600">{risk.probability}%</td>
                                    <td className="px-4 py-3 text-center text-slate-600">{risk.impact}%</td>
                                    <td className="px-4 py-3 text-center">
-                                       <span className="px-2 py-1 rounded text-xs font-bold text-white" style={{ backgroundColor: getColor(risk.probability, risk.impact) }}>
+                                       <span className="px-2 py-1  text-xs font-bold text-white" style={{ backgroundColor: getColor(risk.probability, risk.impact) }}>
                                            {score}
                                        </span>
                                    </td>
                                    <td className="px-6 py-3 text-slate-600 max-w-[300px] truncate" title={risk.mitigation}>{risk.mitigation || '-'}</td>
                                    <td className="px-4 py-3">
                                        <select
-                                            className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 text-xs py-1 outline-none text-slate-700 cursor-pointer"
+                                            className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-700 text-xs py-1 outline-none text-slate-700 cursor-pointer"
                                             value={risk.ownerId || ''}
                                             onChange={(e) => handleUpdateRiskOwner(risk.id, e.target.value)}
                                         >

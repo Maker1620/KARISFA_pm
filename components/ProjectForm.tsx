@@ -17,20 +17,20 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
     <div className="max-w-4xl mx-auto space-y-6">
       
       {onImportDocs && (
-          <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-xl shadow-sm">
+          <div className="bg-slate-50 border border-slate-200 p-6  shadow-sm">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h3 className="text-md font-bold text-indigo-900 flex items-center gap-2">
+                    <h3 className="text-md font-bold text-slate-900 flex items-center gap-2">
                         <span></span> Auto-Fill from Google Drive
                     </h3>
-                    <p className="text-sm text-indigo-700 mt-1 max-w-xl">
+                    <p className="text-sm text-blue-900 mt-1 max-w-xl">
                         Select a folder containing project documentation (Google Docs, Spreadsheets, PDFs, text files) and Gemini will analyze it to populate your project scope, team, tasks, and resources.
                     </p>
                 </div>
                 <button 
                     onClick={onImportDocs}
                     disabled={isImportingDocs}
-                    className="shrink-0 bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition shadow-sm disabled:opacity-50"
+                    className="shrink-0 bg-blue-800 text-white px-4 py-2  font-medium hover:bg-blue-900 transition shadow-sm disabled:opacity-50"
                 >
                     {isImportingDocs ? 'Analyzing Docs...' : 'Select Folder'}
                 </button>
@@ -38,14 +38,14 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
           </div>
       )}
 
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 space-y-6">
+      <div className="bg-white p-8  shadow-sm border border-slate-200 space-y-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-2">Project Name</label>
           <input
             type="text"
             value={data.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-lg bg-white text-slate-600 placeholder:text-slate-400"
+            className="w-full px-4 py-3  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-lg bg-white text-slate-600 placeholder:text-slate-400"
             placeholder="Enter project name..."
           />
         </div>
@@ -56,7 +56,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
             value={data.description}
             onChange={(e) => handleChange('description', e.target.value)}
             rows={4}
-            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
+            className="w-full px-4 py-3  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
             placeholder="What is this project about? (This is used by AI to generate suggestions)"
           />
         </div>
@@ -68,7 +68,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
                 value={data.objectives}
                 onChange={(e) => handleChange('objectives', e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
+                className="w-full px-4 py-3  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
                 placeholder="What are the success criteria?"
             />
             </div>
@@ -78,7 +78,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
                 value={data.scope}
                 onChange={(e) => handleChange('scope', e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
+                className="w-full px-4 py-3  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
                 placeholder="What is in and out of scope?"
             />
             </div>
@@ -90,13 +90,13 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
             type="text"
             value={data.timeline}
             onChange={(e) => handleChange('timeline', e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
+            className="w-full px-4 py-3  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition bg-white text-slate-600 placeholder:text-slate-400"
             placeholder="e.g. Q3 2024 launch, strict budget of $50k..."
           />
         </div>
       </div>
       
-      <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex gap-3 text-blue-800 text-sm">
+      <div className="bg-blue-50 border border-blue-100 p-4  flex gap-3 text-blue-800 text-sm">
         <span className="text-xl">💡</span>
         <p>Tip: The more details you provide here, the better the AI can generate your RACI matrix and Project Charter.</p>
       </div>

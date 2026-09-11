@@ -33,23 +33,23 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
 
     const renderSummary = () => (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-            <div className="bg-indigo-600 p-4 rounded-xl text-white shadow-md">
-                <p className="text-indigo-200 text-xs font-medium uppercase">Total Budget</p>
+            <div className="bg-blue-800 p-4  text-white shadow-md">
+                <p className="text-slate-300 text-xs font-medium uppercase">Total Budget</p>
                 <p className="text-2xl font-bold">${totals.All.toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4  border border-slate-200 shadow-sm">
                 <p className="text-slate-500 text-xs font-medium uppercase">People</p>
                 <p className="text-xl font-semibold text-slate-700">${totals.People.toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4  border border-slate-200 shadow-sm">
                 <p className="text-slate-500 text-xs font-medium uppercase">Services</p>
                 <p className="text-xl font-semibold text-slate-700">${totals.Service.toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4  border border-slate-200 shadow-sm">
                 <p className="text-slate-500 text-xs font-medium uppercase">Materials</p>
                 <p className="text-xl font-semibold text-slate-700">${totals.Material.toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-4  border border-slate-200 shadow-sm">
                 <p className="text-slate-500 text-xs font-medium uppercase">Other</p>
                 <p className="text-xl font-semibold text-slate-700">${totals.Other.toLocaleString()}</p>
             </div>
@@ -60,7 +60,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
         <div className="space-y-6">
             {renderSummary()}
             
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white  shadow-sm border border-slate-200 overflow-hidden">
                 <div className="flex border-b border-slate-200">
                     {['People', 'Service', 'Material', 'Other'].map((tab) => (
                         <button
@@ -68,7 +68,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
                             onClick={() => setActiveTab(tab as any)}
                             className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
                                 activeTab === tab 
-                                ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50' 
+                                ? 'border-blue-800 text-blue-800 bg-slate-50/50' 
                                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                             }`}
                         >
@@ -122,7 +122,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
 
 // --- Sub-Components ---
 
-const inputClass = "w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400";
+const inputClass = "w-full px-3 py-2  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400";
 const labelClass = "block text-xs font-semibold text-slate-500 mb-1";
 
 const PeopleForm = ({ resources, addResource, deleteResource, team, tasks }: any) => {
@@ -141,7 +141,7 @@ const PeopleForm = ({ resources, addResource, deleteResource, team, tasks }: any
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end bg-slate-50 p-6  border border-slate-200">
                 <div className="md:col-span-1">
                     <label className={labelClass}>Person</label>
                     <select className={inputClass} value={state.personId} onChange={e => setState({...state, personId: e.target.value})}>
@@ -168,7 +168,7 @@ const PeopleForm = ({ resources, addResource, deleteResource, team, tasks }: any
                     <label className={labelClass}>Rate ($)</label>
                     <input type="number" className={inputClass} value={state.rate} onChange={e => setState({...state, rate: Number(e.target.value)})} />
                 </div>
-                <button onClick={handleAdd} className="w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add</button>
+                <button onClick={handleAdd} className="w-full px-4 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add</button>
             </div>
 
             <table className="w-full text-sm text-left">
@@ -221,7 +221,7 @@ const ServiceForm = ({ resources, addResource, deleteResource, tasks, milestones
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end bg-slate-50 p-6  border border-slate-200">
                 <div className="md:col-span-1">
                     <label className={labelClass}>Provider</label>
                     <input type="text" className={inputClass} value={state.provider} onChange={e => setState({...state, provider: e.target.value})} placeholder="Acme Corp" />
@@ -249,7 +249,7 @@ const ServiceForm = ({ resources, addResource, deleteResource, tasks, milestones
                     <label className={labelClass}>Cost ($)</label>
                     <input type="number" className={inputClass} value={state.cost} onChange={e => setState({...state, cost: Number(e.target.value)})} />
                 </div>
-                <button onClick={handleAdd} className="w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add</button>
+                <button onClick={handleAdd} className="w-full px-4 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add</button>
             </div>
 
             <table className="w-full text-sm text-left">
@@ -273,7 +273,7 @@ const ServiceForm = ({ resources, addResource, deleteResource, tasks, milestones
                             <tr key={r.id} className="hover:bg-slate-50">
                                 <td className="px-4 py-3 font-medium text-slate-800">{r.provider}</td>
                                 <td className="px-4 py-3 text-slate-600">{r.serviceName}</td>
-                                <td className="px-4 py-3 text-slate-500"><span className="text-[10px] uppercase font-bold mr-2 border border-slate-200 bg-slate-100 rounded px-1.5 py-0.5 text-slate-500">{r.linkedType.charAt(0)}</span>{linkedName}</td>
+                                <td className="px-4 py-3 text-slate-500"><span className="text-[10px] uppercase font-bold mr-2 border border-slate-200 bg-slate-100  px-1.5 py-0.5 text-slate-500">{r.linkedType.charAt(0)}</span>{linkedName}</td>
                                 <td className="px-4 py-3 text-right font-bold text-slate-700">${r.cost.toLocaleString()}</td>
                                 <td className="px-4 py-3 text-right">
                                     <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition">
@@ -317,7 +317,7 @@ const MaterialForm = ({ resources, addResource, deleteResource, tasks, milestone
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-6  border border-slate-200">
                 <div className="md:col-span-1">
                      <label className={labelClass}>Vendor</label>
                      <input type="text" className={inputClass} value={state.vendor} onChange={e => setState({...state, vendor: e.target.value})} placeholder="Supplier Inc" />
@@ -331,19 +331,19 @@ const MaterialForm = ({ resources, addResource, deleteResource, tasks, milestone
                      <input type="number" className={inputClass} value={state.cost} onChange={e => setState({...state, cost: Number(e.target.value)})} />
                 </div>
                 <div className="md:col-span-1 flex items-end">
-                    <button onClick={handleAdd} className="w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add Material</button>
+                    <button onClick={handleAdd} className="w-full px-4 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add Material</button>
                 </div>
                 
                 <div className="md:col-span-4">
                     <label className={labelClass}>Link to (Select one or more)</label>
-                    <div className="max-h-32 overflow-y-auto border border-slate-300 rounded-lg bg-white p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                    <div className="max-h-32 overflow-y-auto border border-slate-300  bg-white p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                         {allItems.map((item: any) => (
-                            <label key={item.id} className="flex items-center gap-2 text-xs p-1.5 hover:bg-slate-50 rounded cursor-pointer transition">
+                            <label key={item.id} className="flex items-center gap-2 text-xs p-1.5 hover:bg-slate-50  cursor-pointer transition">
                                 <input 
                                     type="checkbox" 
                                     checked={state.linkedIds.includes(item.id)}
                                     onChange={() => toggleLink(item.id)}
-                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="border-slate-300 text-blue-800 focus:ring-blue-700"
                                 />
                                 <span className="font-bold text-slate-400 text-[10px] w-4">{item.type.charAt(0)}</span>
                                 <span className="truncate text-slate-700">{item.name}</span>
@@ -373,7 +373,7 @@ const MaterialForm = ({ resources, addResource, deleteResource, tasks, milestone
                                     {r.linkedIds.map(id => {
                                         const item = allItems.find((i: any) => i.id === id);
                                         return item ? (
-                                            <span key={id} className="text-[10px] bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-slate-600" title={item.name}>
+                                            <span key={id} className="text-[10px] bg-slate-100 border border-slate-200  px-1.5 py-0.5 text-slate-600" title={item.name}>
                                                 {item.type.charAt(0)}: {item.name.substring(0, 15)}...
                                             </span>
                                         ) : null;
@@ -407,7 +407,7 @@ const OtherForm = ({ resources, addResource, deleteResource }: any) => {
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-slate-50 p-6  border border-slate-200">
                 <div className="md:col-span-1">
                      <label className={labelClass}>Category</label>
                      <select className={inputClass} value={state.category} onChange={e => setState({...state, category: e.target.value})}>
@@ -422,7 +422,7 @@ const OtherForm = ({ resources, addResource, deleteResource }: any) => {
                      <label className={labelClass}>Cost ($)</label>
                      <input type="number" className={inputClass} value={state.cost} onChange={e => setState({...state, cost: Number(e.target.value)})} />
                 </div>
-                <button onClick={handleAdd} className="md:col-span-1 w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add Expense</button>
+                <button onClick={handleAdd} className="md:col-span-1 w-full px-4 py-2 bg-blue-800 text-white font-medium  hover:bg-blue-900 transition text-sm shadow-sm h-[38px] flex items-center justify-center">Add Expense</button>
             </div>
 
             <table className="w-full text-sm text-left">

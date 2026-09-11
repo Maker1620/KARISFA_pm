@@ -25,7 +25,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg border border-slate-200">
+            <div className="bg-white  shadow-2xl p-6 w-full max-w-lg border border-slate-200">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-bold text-slate-800">Settings</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
@@ -34,7 +34,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
                 
                 <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-800 space-y-2">
+                    <div className="bg-red-50 border border-red-200  p-3 text-xs text-red-800 space-y-2">
                         <strong className="block text-sm font-bold">Fixing "Authorization Error 400"</strong>
                         <p>
                             The error <em>"Storagerelay URI is not allowed for 'NATIVE_DESKTOP' client type"</em> means you created the wrong type of Client ID.
@@ -52,7 +52,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         <label className="block text-sm font-semibold text-slate-700 mb-1">Google Cloud Client ID</label>
                         <input 
                             type="text" 
-                            className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
+                            className="w-full px-3 py-2  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
                             placeholder="e.g. 123456-abcde.apps.googleusercontent.com"
                             value={clientId}
                             onChange={(e) => setClientId(e.target.value)}
@@ -66,7 +66,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         <label className="block text-sm font-semibold text-slate-700 mb-1">Google Project Number</label>
                         <input 
                             type="text" 
-                            className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
+                            className="w-full px-3 py-2  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
                             placeholder="e.g. 123456789012"
                             value={appId}
                             onChange={(e) => setAppId(e.target.value)}
@@ -80,7 +80,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         <label className="block text-sm font-semibold text-slate-700 mb-1">Google API Key (Optional)</label>
                         <input 
                             type="text" 
-                            className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
+                            className="w-full px-3 py-2  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm text-slate-700 placeholder:text-slate-400"
                             placeholder="AIzaSy..."
                             value={apiKey}
                             onChange={(e) => setApiKey(e.target.value)}
@@ -93,13 +93,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <div className="pt-4 border-t border-slate-100 flex justify-end gap-2">
                         <button 
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100  transition"
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={handleSave}
-                            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-sm"
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-800 hover:bg-blue-900  transition shadow-sm"
                         >
                             Save & Reload
                         </button>

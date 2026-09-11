@@ -36,13 +36,13 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({ isOpen, onClos
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
-                <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center text-white">
+            <div className="bg-white  shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
+                <div className="bg-blue-800 px-6 py-4 flex justify-between items-center text-white">
                     <div className="flex items-center gap-2">
                         <span className="text-xl">✨</span>
                         <h3 className="text-lg font-bold">Enable AI Features</h3>
                     </div>
-                    <button onClick={onClose} className="text-indigo-200 hover:text-white transition">
+                    <button onClick={onClose} className="text-slate-300 hover:text-white transition">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
@@ -52,7 +52,7 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({ isOpen, onClos
                         Google provides free access to Gemini AI. To use the AI auto-generation tools (RACI, Task Generator, Charter), simply connect your free Google key. You will not be charged.
                     </p>
 
-                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3">
+                    <div className="bg-slate-50 border border-slate-200  p-4 space-y-3">
                         <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-700">
                             <li>
                                 Click the button below and sign in with your Google account.
@@ -61,7 +61,7 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({ isOpen, onClos
                                         href="https://aistudio.google.com/app/apikey" 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg font-medium transition text-xs"
+                                        className="inline-block px-4 py-2 bg-slate-200 text-blue-900 hover:bg-slate-300  font-medium transition text-xs"
                                     >
                                         Get Free Key from Google
                                     </a>
@@ -77,7 +77,7 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({ isOpen, onClos
                         <div className="relative">
                             <input 
                                 type={showKey ? "text" : "password"}
-                                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm text-slate-700 pr-10"
+                                className="w-full px-4 py-2.5  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm text-slate-700 pr-10"
                                 placeholder="AIzaSy..."
                                 value={apiKey}
                                 onChange={(e) => setApiKey(e.target.value)}
@@ -101,7 +101,7 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({ isOpen, onClos
                     {localStorage.getItem('gemini_user_api_key') ? (
                         <button 
                             onClick={handleClear}
-                            className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition"
+                            className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50  transition"
                         >
                             Clear Key
                         </button>
@@ -109,14 +109,14 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({ isOpen, onClos
                     <div className="flex gap-2">
                         <button 
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition"
+                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200  transition"
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={handleSave}
                             disabled={!apiKey.trim()}
-                            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-sm disabled:opacity-50"
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-800 hover:bg-blue-900  transition shadow-sm disabled:opacity-50"
                         >
                             Save & Activate
                         </button>
