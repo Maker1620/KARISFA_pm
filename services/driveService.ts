@@ -458,3 +458,52 @@ export const saveProjectAsSheet = async (folderId: string, state: NexusProjectSt
 
     return spreadsheetId;
 };
+
+export const saveProjectAsJsonBackup = async (folderId: string, state: NexusProjectState, token: string): Promise<string> => {
+    if (getClientId() === 'YOUR_CLIENT_ID_HERE') {
+        console.log("Simulating JSON Backup to Drive:", state);
+        return "simulated-json-backup-id";
+    }
+
+    // search for existing "Nexus_Backup.json"
+    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+name='Nexus_Backup.json'+and+trashed=false&fields=files(id,name)`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const searchData = await searchRes.json();
+    const existingFileId = searchData.files && searchData.files.length > 0 ? searchData.files[0].id : null;
+
+    const fileMetadata: any = {
+        name: 'Nexus_Backup.json',
+        mimeType: 'application/json'
+    };
+    if (!existingFileId) {
+        fileMetadata.parents = [folderId];
+    }
+
+    const fileContent = JSON.stringify(state, null, 2);
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+    form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+    let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+    let method = 'POST';
+    if (existingFileId) {
+        url = `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart`;
+        method = 'PATCH';
+    }
+
+    const uploadRes = await fetch(url, {
+        method,
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+        body: form
+    });
+    
+    if (!uploadRes.ok) {
+        throw new Error("Failed to upload JSON backup");
+    }
+
+    const uploadData = await uploadRes.json();
+    return uploadData.id;
+};

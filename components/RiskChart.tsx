@@ -81,6 +81,10 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
       setRisks(risks.map(r => r.id === id ? { ...r, ownerId: ownerId || undefined } : r));
   };
 
+  const handleUpdateRiskValue = (id: string, field: 'probability' | 'impact', value: number) => {
+      setRisks(risks.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+
   const getColor = (prob: number, impact: number) => {
       const score = prob * impact;
       if (score > 5000) return '#ef4444'; // High Risk (Red)
@@ -259,8 +263,30 @@ export const RiskChart: React.FC<RiskChartProps> = ({ project, team, risks, setR
                            return (
                                <tr key={risk.id} className="hover:bg-slate-50">
                                    <td className="px-6 py-3 font-medium text-slate-800 max-w-[200px] truncate" title={risk.name}>{risk.name}</td>
-                                   <td className="px-4 py-3 text-center text-slate-600">{risk.probability}%</td>
-                                   <td className="px-4 py-3 text-center text-slate-600">{risk.impact}%</td>
+                                   <td className="px-4 py-3 text-center text-slate-600">
+                                       <div className="flex items-center justify-center gap-1">
+                                           <input 
+                                                type="number" 
+                                                min="0" max="100"
+                                                value={risk.probability}
+                                                onChange={(e) => handleUpdateRiskValue(risk.id, 'probability', Number(e.target.value))}
+                                                className="w-12 text-center bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-700 outline-none text-slate-700"
+                                            />
+                                            <span className="text-slate-500 text-xs">%</span>
+                                       </div>
+                                   </td>
+                                   <td className="px-4 py-3 text-center text-slate-600">
+                                       <div className="flex items-center justify-center gap-1">
+                                           <input 
+                                                type="number" 
+                                                min="0" max="100"
+                                                value={risk.impact}
+                                                onChange={(e) => handleUpdateRiskValue(risk.id, 'impact', Number(e.target.value))}
+                                                className="w-12 text-center bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-700 outline-none text-slate-700"
+                                            />
+                                            <span className="text-slate-500 text-xs">%</span>
+                                       </div>
+                                   </td>
                                    <td className="px-4 py-3 text-center">
                                        <span className="px-2 py-1  text-xs font-bold text-white" style={{ backgroundColor: getColor(risk.probability, risk.impact) }}>
                                            {score}

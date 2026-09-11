@@ -180,9 +180,8 @@ export const generateCharterContent = async (project: ProjectData, team: TeamMem
 
 export const extractProjectDataFromDocs = async (docsText: string): Promise<any> => {
     const ai = getAiClient();
-    const prompt = `Analyze the following project documentation and extract the project details, team members, tasks, and resources.
+    const prompt = `Analyze the following project documentation and extract the project details, team members, tasks, milestones, deliverables, and resources.
 If any information is missing, leave the field empty or make a reasonable inference based on the text.
-
 DOCUMENTATION:
 ${docsText}`;
 
@@ -216,7 +215,31 @@ ${docsText}`;
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                name: { type: Type.STRING }
+                                name: { type: Type.STRING },
+                                milestoneName: { type: Type.STRING }
+                            },
+                            required: ["name"]
+                        }
+                    },
+                    milestones: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                name: { type: Type.STRING },
+                                dueDate: { type: Type.STRING },
+                                deliverableName: { type: Type.STRING }
+                            },
+                            required: ["name"]
+                        }
+                    },
+                    deliverables: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                name: { type: Type.STRING },
+                                description: { type: Type.STRING }
                             },
                             required: ["name"]
                         }

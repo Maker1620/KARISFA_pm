@@ -15,7 +15,7 @@ import {
     ProjectData, TeamMember, RaciRow, RiskItem, Deliverable, Milestone, Task, 
     NexusProjectState, ProjectResource, JournalEntry 
 } from './types';
-import { initDriveApi, signInToDrive, saveProjectAsSheet, openFolderPicker, getFilesInFolder, getFileText } from './services/driveService';
+import { initDriveApi, signInToDrive, saveProjectAsSheet, saveProjectAsJsonBackup, openFolderPicker, getFilesInFolder, getFileText } from './services/driveService';
 import { extractProjectDataFromDocs } from './services/geminiService';
 import { loadLocalProject, saveLocalProject } from './services/storageService';
 
@@ -98,7 +98,26 @@ function App() {
           };
           saveLocalProject(state);
       }, 2000); // Debounce save
+      return () => clearTimeout(timer);
   }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes]);
+
+  // Auto-backup to Google Drive JSON file
+  useEffect(() => {
+      if (!isSignedIn || !projectData.googleDriveFolderId || !accessToken) return;
+
+      const timer = setTimeout(async () => {
+          try {
+              const state: NexusProjectState = {
+                  projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
+                  lastSaved: new Date().toISOString()
+              };
+              await saveProjectAsJsonBackup(projectData.googleDriveFolderId, state, accessToken);
+          } catch (e) {
+              console.error("Auto-backup failed", e);
+          }
+      }, 5000); // 5 second debounce for Drive
+      return () => clearTimeout(timer);
+  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes, isSignedIn, accessToken]);
 
   const handleSignIn = async () => {
       try {
@@ -314,18 +333,60 @@ function App() {
               setTeam(prev => [...prev, ...newTeam]);
           }
 
-          if (extracted.tasks && Array.isArray(extracted.tasks)) {
-              const newTasks = extracted.tasks.map((t: any, i: number) => ({
-                  id: `task-${Date.now()}-${i}`,
-                  name: t.name || 'Untitled Task',
-                  status: 'Todo',
-                  priority: 'Medium',
-                  startDate: new Date().toISOString().split('T')[0],
-                  dueDate: '',
-                  milestoneId: '',
-                  assigneeId: '',
-                  dependencies: []
+          let generatedDeliverables: any[] = [];
+          if (extracted.deliverables && Array.isArray(extracted.deliverables)) {
+              generatedDeliverables = extracted.deliverables.map((d: any, i: number) => ({
+                  id: `del-${Date.now()}-${i}`,
+                  name: d.name || 'Untitled Deliverable',
+                  description: d.description || '',
+                  dueDate: ''
               }));
+              setDeliverables(prev => [...prev, ...generatedDeliverables]);
+          }
+
+          let generatedMilestones: any[] = [];
+          if (extracted.milestones && Array.isArray(extracted.milestones)) {
+              generatedMilestones = extracted.milestones.map((m: any, i: number) => {
+                  let deliverableId = '';
+                  if (m.deliverableName) {
+                      const matchedDel = generatedDeliverables.find(d => 
+                          d.name.toLowerCase().includes(m.deliverableName.toLowerCase()) || 
+                          m.deliverableName.toLowerCase().includes(d.name.toLowerCase())
+                      );
+                      if (matchedDel) deliverableId = matchedDel.id;
+                  }
+                  return {
+                      id: `ms-${Date.now()}-${i}`,
+                      name: m.name || 'Untitled Milestone',
+                      dueDate: m.dueDate || '',
+                      deliverableId
+                  };
+              });
+              setMilestones(prev => [...prev, ...generatedMilestones]);
+          }
+
+          if (extracted.tasks && Array.isArray(extracted.tasks)) {
+              const newTasks = extracted.tasks.map((t: any, i: number) => {
+                  let milestoneId = '';
+                  if (t.milestoneName) {
+                      const matchedMs = generatedMilestones.find(m => 
+                          m.name.toLowerCase().includes(t.milestoneName.toLowerCase()) || 
+                          t.milestoneName.toLowerCase().includes(m.name.toLowerCase())
+                      );
+                      if (matchedMs) milestoneId = matchedMs.id;
+                  }
+                  return {
+                      id: `task-${Date.now()}-${i}`,
+                      name: t.name || 'Untitled Task',
+                      status: 'Todo',
+                      priority: 'Medium',
+                      startDate: new Date().toISOString().split('T')[0],
+                      dueDate: '',
+                      milestoneId,
+                      assigneeId: '',
+                      dependencies: []
+                  };
+              });
               setTasks(prev => [...prev, ...newTasks]);
           }
           
