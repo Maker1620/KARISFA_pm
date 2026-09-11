@@ -10,6 +10,8 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ team, setTeam }) => {
   const [newName, setNewName] = useState('');
   const [newRole, setNewRole] = useState('');
   const [newSkills, setNewSkills] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPhone, setNewPhone] = useState('');
   const [newType, setNewType] = useState<'Internal' | 'External'>('Internal');
 
   const handleAdd = () => {
@@ -19,12 +21,16 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ team, setTeam }) => {
       name: newName,
       role: newRole,
       skills: newSkills,
+      email: newEmail,
+      phone: newPhone,
       type: newType
     };
     setTeam([...team, member]);
     setNewName('');
     setNewRole('');
     setNewSkills('');
+    setNewEmail('');
+    setNewPhone('');
     setNewType('Internal');
   };
 
@@ -36,7 +42,7 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ team, setTeam }) => {
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h3 className="text-lg font-medium text-slate-900 mb-4">Add Stakeholder / Team Member</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
           <div className="lg:col-span-1">
             <label className="block text-sm font-medium text-slate-600 mb-1">Name</label>
             <input
@@ -58,13 +64,33 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ team, setTeam }) => {
             />
           </div>
           <div className="lg:col-span-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">Email</label>
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400"
+              placeholder="jane@example.com"
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">Phone</label>
+            <input
+              type="text"
+              value={newPhone}
+              onChange={(e) => setNewPhone(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400"
+              placeholder="555-0100"
+            />
+          </div>
+          <div className="lg:col-span-1">
             <label className="block text-sm font-medium text-slate-600 mb-1">Skills</label>
             <input
               type="text"
               value={newSkills}
               onChange={(e) => setNewSkills(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400"
-              placeholder="e.g. React, Marketing"
+              placeholder="React, Marketing"
             />
           </div>
           <div className="lg:col-span-1">
@@ -105,6 +131,12 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ team, setTeam }) => {
                    )}
                 </div>
                 <p className="text-sm text-slate-500 font-medium">{member.role}</p>
+                {(member.email || member.phone) && (
+                    <div className="mt-1 text-xs text-slate-400 space-y-0.5">
+                        {member.email && <p>📧 {member.email}</p>}
+                        {member.phone && <p>📞 {member.phone}</p>}
+                    </div>
+                )}
                 {member.skills && (
                     <div className="mt-2 flex flex-wrap gap-1">
                         {member.skills.split(',').map((skill, i) => (

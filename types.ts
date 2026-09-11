@@ -94,6 +94,22 @@ export interface JournalEntry {
   content: string;
 }
 
+export interface ActionItem {
+  id: string;
+  description: string;
+  assigneeId?: string; // FK to TeamMember
+  linkedTaskId?: string; // FK to Task
+  status: 'Open' | 'Done';
+}
+
+export interface MeetingMinute {
+  id: string;
+  date: string;
+  title: string;
+  rawNotes: string;
+  actionItems: ActionItem[];
+}
+
 // --- Resource & Costing Types ---
 
 export interface PeopleCost {
@@ -147,5 +163,6 @@ export interface NexusProjectState {
   deliverables: Deliverable[];
   resources: ProjectResource[];
   journalEntries?: JournalEntry[];
+  meetingMinutes?: MeetingMinute[];
   lastSaved?: string;
 }

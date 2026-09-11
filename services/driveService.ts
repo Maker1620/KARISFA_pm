@@ -3,6 +3,11 @@ declare var gapi: any;
 declare var google: any;
 import { NexusProjectState, RaciRole, PeopleCost, ServiceCost, MaterialCost, OtherCost } from '../types';
 
+import * as pdfjsLib from 'pdfjs-dist';
+// For Vite to handle the worker URL automatically:
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
 // Helper to get Client ID from Env or LocalStorage
 export const getClientId = () => {
     return '217275101727-tpduauhn45mlsm19keb66bk0hpsmc1o6.apps.googleusercontent.com';
@@ -186,8 +191,18 @@ export const openFolderPicker = async (oauthToken: string): Promise<{id: string,
 
 export const getFilesInFolder = async (folderId: string): Promise<any[]> => {
     try {
+        const supportedTypes = [
+            'application/vnd.google-apps.document',
+            'application/vnd.google-apps.spreadsheet',
+            'application/pdf',
+            'text/plain',
+            'text/csv',
+            'text/markdown'
+        ];
+        const mimeTypeQuery = supportedTypes.map(type => `mimeType = '${type}'`).join(' or ');
+        
         const res = await gapi.client.drive.files.list({
-            q: `'${folderId}' in parents and trashed = false`,
+            q: `'${folderId}' in parents and trashed = false and (${mimeTypeQuery})`,
             fields: 'files(id, name, mimeType)'
         });
         return res.result.files || [];
@@ -205,6 +220,29 @@ export const getFileText = async (fileId: string, mimeType: string, token: strin
             });
             if (res.ok) {
                 return await res.text();
+            }
+        } else if (mimeType === 'application/vnd.google-apps.spreadsheet') {
+            const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/csv`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                return await res.text();
+            }
+        } else if (mimeType === 'application/pdf') {
+            const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const arrayBuffer = await res.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let text = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    const pageText = content.items.map((item: any) => item.str).join(' ');
+                    text += pageText + '\n';
+                }
+                return text;
             }
         } else if (mimeType.startsWith('text/')) {
             const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {

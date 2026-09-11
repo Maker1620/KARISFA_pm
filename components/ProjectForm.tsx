@@ -24,7 +24,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ data, onChange, onImpo
                         <span></span> Auto-Fill from Google Drive
                     </h3>
                     <p className="text-sm text-indigo-700 mt-1 max-w-xl">
-                        Select a folder containing project documentation (Google Docs, text files) and Gemini will analyze it to populate your project scope, team, tasks, and resources.
+                        Select a folder containing project documentation (Google Docs, Spreadsheets, PDFs, text files) and Gemini will analyze it to populate your project scope, team, tasks, and resources.
                     </p>
                 </div>
                 <button 

@@ -241,6 +241,59 @@ ${docsText}`;
     return JSON.parse(response.text || "{}");
 };
 
+export const generateMeetingActionItems = async (rawNotes: string, tasks: Task[], team: TeamMember[]): Promise<ActionItem[]> => {
+    const ai = getAiClient();
+    if (!ai) throw new Error("API_KEY_MISSING");
+
+    const prompt = `You are a project management AI assistant.
+Your task is to analyze the following raw meeting notes and extract a structured list of action items.
+
+Context:
+Existing Project Tasks: ${JSON.stringify(tasks.map(t => ({ id: t.id, name: t.name })))}
+Project Team Members: ${JSON.stringify(team.map(t => ({ id: t.id, name: t.name })))}
+
+Raw Meeting Notes:
+${rawNotes}
+
+Instructions:
+1. Extract all action items or follow-ups mentioned in the notes.
+2. For each action item, create a short, clear description.
+3. Determine if the action item should be assigned to a specific team member. If so, provide their 'id'. If unclear, leave null.
+4. Determine if the action item relates to an existing project task. If so, provide the task 'id' as 'linkedTaskId'. If no existing task matches, leave null.
+5. All items should have a status of "Open".
+6. Format your response as a pure JSON array of objects. Do not include markdown formatting or backticks.
+
+Expected JSON array schema:
+[
+  {
+    "id": "generated_id_123",
+    "description": "Short description of action item",
+    "assigneeId": "team_member_id_or_null",
+    "linkedTaskId": "task_id_or_null",
+    "status": "Open"
+  }
+]`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.2
+            }
+        });
+        const text = response.text();
+        const jsonMatch = text?.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]) as ActionItem[];
+        }
+        return JSON.parse(text || "[]");
+    } catch (e) {
+        console.error("Error generating meeting action items:", e);
+        throw new Error("Failed to generate action items.");
+    }
+};
+
 export const generateProjectPlan = async (project: ProjectData): Promise<string> => {
     const ai = getAiClient();
     const prompt = `
@@ -251,6 +304,46 @@ export const generateProjectPlan = async (project: ProjectData): Promise<string>
 
       Format as Markdown. Break it down into Phases (e.g., Phase 1: Initiation, Phase 2: Planning, etc.).
       For each phase, list key activities and estimated duration.
+    `;
+
+    const response = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt
+    });
+
+    return response.text || "";
+};
+
+export const generateStatusReport = async (
+    project: ProjectData,
+    tasks: any[],
+    milestones: any[],
+    resources: any[]
+): Promise<string> => {
+    const ai = getAiClient();
+    
+    const completedTasks = tasks.filter(t => t.status === 'Done').length;
+    const totalBudget = resources.reduce((acc, r) => acc + (r.type === 'People' ? (r.totalCost || 0) : (r.cost || 0)), 0);
+    const completedMilestones = milestones.filter(m => tasks.some(t => t.milestoneId === m.id && t.status === 'Done')).length;
+
+    const prompt = `
+      Write a concise, professional Executive Status Report for the project.
+      Project Name: ${project.name}
+      Timeline: ${project.timeline}
+      Description: ${project.description}
+
+      Please include these exact data points in your summary organically:
+      - Task Progress: ${completedTasks} out of ${tasks.length} tasks completed.
+      - Financials: Total Budget estimated at $${totalBudget}.
+      - Milestones: ${milestones.length} total key milestones tracked.
+
+      Format the output as clean Markdown, suitable for a printable PDF report. Use these headers:
+      # Executive Summary
+      # Project Status
+      # Key Milestones
+      # Financials & Resources
+      
+      Keep it clear, professional, and structured.
     `;
 
     const response = await ai.models.generateContent({

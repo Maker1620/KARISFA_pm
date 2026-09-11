@@ -49,6 +49,7 @@ function App() {
 
   // Journal State
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [meetingMinutes, setMeetingMinutes] = useState<MeetingMinute[]>([]);
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -68,6 +69,7 @@ function App() {
           setDeliverables(localState.deliverables || []);
           setResources(localState.resources || []);
           setJournalEntries(localState.journalEntries || []);
+          setMeetingMinutes(localState.meetingMinutes || []);
       }
       // Attempt to init Drive API silently
       initDriveApi().catch(console.error);
@@ -91,12 +93,12 @@ function App() {
   useEffect(() => {
       const timer = setTimeout(() => {
           const state: NexusProjectState = {
-              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries,
+              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
               lastSaved: new Date().toISOString()
           };
           saveLocalProject(state);
       }, 2000); // Debounce save
-  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries]);
+  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes]);
 
   const handleSignIn = async () => {
       try {
@@ -149,7 +151,7 @@ function App() {
       // If NOT signed in, simple local save confirmation
       if (!isSignedIn) {
           const state: NexusProjectState = {
-              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries,
+              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
               lastSaved: new Date().toISOString()
           };
           saveLocalProject(state);
@@ -176,6 +178,7 @@ function App() {
               deliverables,
               resources,
               journalEntries,
+              meetingMinutes,
               lastSaved: new Date().toISOString()
           };
 
@@ -202,7 +205,7 @@ function App() {
           if(!confirm("Project has no name. Export anyway?")) return;
       }
       const state: NexusProjectState = {
-          projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries,
+          projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
           lastSaved: new Date().toISOString()
       };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
@@ -235,6 +238,7 @@ function App() {
               setDeliverables(importedState.deliverables || []);
               setResources(importedState.resources || []);
               setJournalEntries(importedState.journalEntries || []);
+              setMeetingMinutes(importedState.meetingMinutes || []);
               
               saveLocalProject(importedState); // Also save to local storage immediately
               alert("Project loaded successfully!");
@@ -390,9 +394,9 @@ function App() {
       case 'risks':
         return <RiskChart project={projectData} risks={risks} setRisks={setRisks} team={team} />;
       case 'docs':
-        return <DocumentView project={projectData} team={team} journal={journalEntries} setJournal={setJournalEntries} />;
+        return <DocumentView project={projectData} team={team} journal={journalEntries} setJournal={setJournalEntries} meetingMinutes={meetingMinutes} setMeetingMinutes={setMeetingMinutes} tasks={tasks} />;
       case 'insights':
-        return <ProgressInsights tasks={tasks} milestones={milestones} team={team} />;
+        return <ProgressInsights tasks={tasks} milestones={milestones} team={team} deliverables={deliverables} resources={resources} />;
       case 'gantt':
         return <GanttChart tasks={tasks} milestones={milestones} team={team} />;
       default:
