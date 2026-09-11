@@ -17,6 +17,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
     resources, setResources, team, tasks, milestones, deliverables 
 }) => {
     const [activeTab, setActiveTab] = useState<'People' | 'Service' | 'Material' | 'Other'>('People');
+    const [editingResource, setEditingResource] = useState<ProjectResource | null>(null);
 
     // --- Totals Calculation ---
     const totals = useMemo(() => {
@@ -29,6 +30,11 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
 
     const deleteResource = (id: string) => {
         setResources(resources.filter(r => r.id !== id));
+    };
+
+    const handleSaveEdit = (updatedResource: ProjectResource) => {
+        setResources(resources.map(r => r.id === updatedResource.id ? updatedResource : r));
+        setEditingResource(null);
     };
 
     const renderSummary = () => (
@@ -83,6 +89,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
                             resources={resources.filter(r => r.type === 'People') as PeopleCost[]}
                             addResource={(r: any) => setResources([...resources, r])}
                             deleteResource={deleteResource}
+                            editResource={setEditingResource}
                             team={team}
                             tasks={tasks}
                         />
@@ -92,6 +99,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
                             resources={resources.filter(r => r.type === 'Service') as ServiceCost[]}
                             addResource={(r: any) => setResources([...resources, r])}
                             deleteResource={deleteResource}
+                            editResource={setEditingResource}
                             tasks={tasks}
                             milestones={milestones}
                             deliverables={deliverables}
@@ -102,6 +110,7 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
                             resources={resources.filter(r => r.type === 'Material') as MaterialCost[]}
                             addResource={(r: any) => setResources([...resources, r])}
                             deleteResource={deleteResource}
+                            editResource={setEditingResource}
                             tasks={tasks}
                             milestones={milestones}
                             deliverables={deliverables}
@@ -112,10 +121,23 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
                             resources={resources.filter(r => r.type === 'Other') as OtherCost[]}
                             addResource={(r: any) => setResources([...resources, r])}
                             deleteResource={deleteResource}
+                            editResource={setEditingResource}
                         />
                     )}
                 </div>
             </div>
+
+            {editingResource && (
+                <EditResourceModal 
+                    resource={editingResource}
+                    onSave={handleSaveEdit}
+                    onClose={() => setEditingResource(null)}
+                    team={team}
+                    tasks={tasks}
+                    milestones={milestones}
+                    deliverables={deliverables}
+                />
+            )}
         </div>
     );
 };
@@ -125,7 +147,201 @@ export const ResourceCosting: React.FC<ResourceCostingProps> = ({
 const inputClass = "w-full px-3 py-2  border border-slate-300 focus:ring-2 focus:ring-blue-700 focus:border-blue-700 outline-none transition text-sm bg-white text-slate-600 placeholder:text-slate-400";
 const labelClass = "block text-xs font-semibold text-slate-500 mb-1";
 
-const PeopleForm = ({ resources, addResource, deleteResource, team, tasks }: any) => {
+const EditResourceModal = ({ resource, onSave, onClose, team, tasks, milestones, deliverables }: any) => {
+    const [state, setState] = useState<any>(resource);
+
+    const handleTypeChange = (newType: string) => {
+        let base = { id: state.id, type: newType };
+        if (newType === 'People') {
+            setState({ ...base, personId: '', taskId: '', units: 0, rate: 0, unitType: 'Hours', totalCost: 0 });
+        } else if (newType === 'Service') {
+            setState({ ...base, provider: '', serviceName: '', cost: state.cost || 0, linkedType: 'Task', linkedId: '' });
+        } else if (newType === 'Material') {
+            setState({ ...base, vendor: '', materialName: '', cost: state.cost || 0, linkedIds: [] });
+        } else if (newType === 'Other') {
+            setState({ ...base, category: 'Consultant Fees', description: '', cost: state.cost || 0 });
+        }
+    };
+
+    const handleSave = () => {
+        let finalState = { ...state };
+        if (finalState.type === 'People') {
+            finalState.totalCost = finalState.units * finalState.rate;
+        }
+        onSave(finalState);
+    };
+
+    const getLinkOptions = () => {
+        if (state.linkedType === 'Task') return tasks;
+        if (state.linkedType === 'Milestone') return milestones;
+        return deliverables;
+    };
+    
+    const allItems = [
+        ...tasks.map((t: any) => ({...t, type: 'Task'})),
+        ...milestones.map((m: any) => ({...m, type: 'Milestone'})),
+        ...deliverables.map((d: any) => ({...d, type: 'Deliverable'}))
+    ];
+    
+    const toggleLink = (id: string) => {
+        if (state.linkedIds?.includes(id)) {
+            setState({...state, linkedIds: state.linkedIds.filter((i: string) => i !== id)});
+        } else {
+            setState({...state, linkedIds: [...(state.linkedIds || []), id]});
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white shadow-xl w-full max-w-lg overflow-hidden border border-slate-200">
+                <div className="flex justify-between items-center p-4 border-b border-slate-200 bg-slate-50">
+                    <h3 className="font-bold text-slate-800">Edit Cost</h3>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div>
+                        <label className={labelClass}>Category</label>
+                        <select className={inputClass} value={state.type} onChange={e => handleTypeChange(e.target.value)}>
+                            <option value="People">People</option>
+                            <option value="Service">Service</option>
+                            <option value="Material">Material</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    {state.type === 'People' && (
+                        <>
+                            <div>
+                                <label className={labelClass}>Person</label>
+                                <select className={inputClass} value={state.personId || ''} onChange={e => setState({...state, personId: e.target.value})}>
+                                    <option value="">Select...</option>
+                                    {team.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Task</label>
+                                <select className={inputClass} value={state.taskId || ''} onChange={e => setState({...state, taskId: e.target.value})}>
+                                    <option value="">Select...</option>
+                                    {tasks.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label className={labelClass}>Unit Type</label>
+                                    <input type="text" className={inputClass} value={state.unitType || 'Hours'} onChange={e => setState({...state, unitType: e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Quantity</label>
+                                    <input type="number" className={inputClass} value={state.units || 0} onChange={e => setState({...state, units: Number(e.target.value)})} />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Rate ($)</label>
+                                    <input type="number" className={inputClass} value={state.rate || 0} onChange={e => setState({...state, rate: Number(e.target.value)})} />
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {state.type === 'Service' && (
+                        <>
+                            <div>
+                                <label className={labelClass}>Provider</label>
+                                <input type="text" className={inputClass} value={state.provider || ''} onChange={e => setState({...state, provider: e.target.value})} />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Service</label>
+                                <input type="text" className={inputClass} value={state.serviceName || ''} onChange={e => setState({...state, serviceName: e.target.value})} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className={labelClass}>Link Type</label>
+                                    <select className={inputClass} value={state.linkedType || 'Task'} onChange={e => setState({...state, linkedType: e.target.value, linkedId: ''})}>
+                                        <option value="Task">Task</option>
+                                        <option value="Milestone">Milestone</option>
+                                        <option value="Deliverable">Deliverable</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Linked Item</label>
+                                    <select className={inputClass} value={state.linkedId || ''} onChange={e => setState({...state, linkedId: e.target.value})}>
+                                        <option value="">Select...</option>
+                                        {getLinkOptions().map((i: any) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Cost ($)</label>
+                                <input type="number" className={inputClass} value={state.cost || 0} onChange={e => setState({...state, cost: Number(e.target.value)})} />
+                            </div>
+                        </>
+                    )}
+
+                    {state.type === 'Material' && (
+                        <>
+                            <div>
+                                <label className={labelClass}>Vendor</label>
+                                <input type="text" className={inputClass} value={state.vendor || ''} onChange={e => setState({...state, vendor: e.target.value})} />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Material</label>
+                                <input type="text" className={inputClass} value={state.materialName || ''} onChange={e => setState({...state, materialName: e.target.value})} />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Cost ($)</label>
+                                <input type="number" className={inputClass} value={state.cost || 0} onChange={e => setState({...state, cost: Number(e.target.value)})} />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Linked Items</label>
+                                <div className="max-h-32 overflow-y-auto border border-slate-300 bg-white p-2 grid grid-cols-1 gap-1">
+                                    {allItems.map((item: any) => (
+                                        <label key={item.id} className="flex items-center gap-2 text-xs p-1 hover:bg-slate-50 cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={(state.linkedIds || []).includes(item.id)}
+                                                onChange={() => toggleLink(item.id)}
+                                                className="border-slate-300 text-blue-800"
+                                            />
+                                            <span className="font-bold text-slate-400 w-3">{item.type.charAt(0)}</span>
+                                            <span className="truncate">{item.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {state.type === 'Other' && (
+                        <>
+                            <div>
+                                <label className={labelClass}>Category</label>
+                                <select className={inputClass} value={state.category || 'Consultant Fees'} onChange={e => setState({...state, category: e.target.value})}>
+                                    {['Consultant Fees', 'Software Licenses', 'Travel', 'Telephone', 'Rental Space', 'Office Equipment', 'Insurance', 'Other'].map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Description</label>
+                                <input type="text" className={inputClass} value={state.description || ''} onChange={e => setState({...state, description: e.target.value})} />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Cost ($)</label>
+                                <input type="number" className={inputClass} value={state.cost || 0} onChange={e => setState({...state, cost: Number(e.target.value)})} />
+                            </div>
+                        </>
+                    )}
+
+                </div>
+                <div className="p-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+                    <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition">Cancel</button>
+                    <button onClick={handleSave} className="px-6 py-2 text-sm bg-blue-800 text-white font-medium hover:bg-blue-900 transition shadow-sm">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const PeopleForm = ({ resources, addResource, deleteResource, editResource, team, tasks }: any) => {
     const [state, setState] = useState({ personId: '', taskId: '', units: 0, rate: 0, unitType: 'Hours' });
 
     const handleAdd = () => {
@@ -191,7 +407,10 @@ const PeopleForm = ({ resources, addResource, deleteResource, team, tasks }: any
                             <td className="px-4 py-3 text-right text-slate-600">${r.rate}</td>
                             <td className="px-4 py-3 text-right font-bold text-slate-700">${r.totalCost.toLocaleString()}</td>
                             <td className="px-4 py-3 text-right">
-                                <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition">
+                                <button onClick={() => editResource(r)} className="text-slate-400 hover:text-blue-600 transition mr-2" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                </button>
+                                <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition" title="Delete">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                 </button>
                             </td>
@@ -204,7 +423,7 @@ const PeopleForm = ({ resources, addResource, deleteResource, team, tasks }: any
     );
 };
 
-const ServiceForm = ({ resources, addResource, deleteResource, tasks, milestones, deliverables }: any) => {
+const ServiceForm = ({ resources, addResource, deleteResource, editResource, tasks, milestones, deliverables }: any) => {
     const [state, setState] = useState({ provider: '', serviceName: '', cost: 0, linkedType: 'Task', linkedId: '' });
 
     const getLinkOptions = () => {
@@ -276,7 +495,10 @@ const ServiceForm = ({ resources, addResource, deleteResource, tasks, milestones
                                 <td className="px-4 py-3 text-slate-500"><span className="text-[10px] uppercase font-bold mr-2 border border-slate-200 bg-slate-100  px-1.5 py-0.5 text-slate-500">{r.linkedType.charAt(0)}</span>{linkedName}</td>
                                 <td className="px-4 py-3 text-right font-bold text-slate-700">${r.cost.toLocaleString()}</td>
                                 <td className="px-4 py-3 text-right">
-                                    <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition">
+                                    <button onClick={() => editResource(r)} className="text-slate-400 hover:text-blue-600 transition mr-2" title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                    </button>
+                                    <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition" title="Delete">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                     </button>
                                 </td>
@@ -290,7 +512,7 @@ const ServiceForm = ({ resources, addResource, deleteResource, tasks, milestones
     );
 };
 
-const MaterialForm = ({ resources, addResource, deleteResource, tasks, milestones, deliverables }: any) => {
+const MaterialForm = ({ resources, addResource, deleteResource, editResource, tasks, milestones, deliverables }: any) => {
     const [state, setState] = useState<{ vendor: string, materialName: string, cost: number, linkedIds: string[] }>({ 
         vendor: '', materialName: '', cost: 0, linkedIds: [] 
     });
@@ -382,7 +604,10 @@ const MaterialForm = ({ resources, addResource, deleteResource, tasks, milestone
                             </td>
                             <td className="px-4 py-3 text-right font-bold text-slate-700">${r.cost.toLocaleString()}</td>
                             <td className="px-4 py-3 text-right">
-                                <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition">
+                                <button onClick={() => editResource(r)} className="text-slate-400 hover:text-blue-600 transition mr-2" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                </button>
+                                <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition" title="Delete">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                 </button>
                             </td>
@@ -395,7 +620,7 @@ const MaterialForm = ({ resources, addResource, deleteResource, tasks, milestone
     );
 };
 
-const OtherForm = ({ resources, addResource, deleteResource }: any) => {
+const OtherForm = ({ resources, addResource, deleteResource, editResource }: any) => {
     const [state, setState] = useState({ category: 'Consultant Fees', description: '', cost: 0 });
     const categories = ['Consultant Fees', 'Software Licenses', 'Travel', 'Telephone', 'Rental Space', 'Office Equipment', 'Insurance', 'Other'];
 
@@ -441,7 +666,10 @@ const OtherForm = ({ resources, addResource, deleteResource }: any) => {
                             <td className="px-4 py-3 text-slate-600">{r.description}</td>
                             <td className="px-4 py-3 text-right font-bold text-slate-700">${r.cost.toLocaleString()}</td>
                             <td className="px-4 py-3 text-right">
-                                <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition">
+                                <button onClick={() => editResource(r)} className="text-slate-400 hover:text-blue-600 transition mr-2" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                </button>
+                                <button onClick={() => deleteResource(r.id)} className="text-slate-400 hover:text-red-600 transition" title="Delete">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                                 </button>
                             </td>
