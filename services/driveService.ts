@@ -507,3 +507,55 @@ export const saveProjectAsJsonBackup = async (folderId: string, state: NexusProj
     const uploadData = await uploadRes.json();
     return uploadData.id;
 };
+
+export const openJsonFilePicker = async (oauthToken: string): Promise<{id: string, name: string} | null> => {
+    if (oauthToken === 'simulated-token') {
+        const confirmSim = window.confirm("Simulation Mode: Would you like to select 'Simulated Project File'?");
+        if (confirmSim) {
+            return { id: 'simulated-file-id', name: 'Simulated Project.json' };
+        }
+        return null;
+    }
+    return new Promise((resolve, reject) => {
+        try {
+            gapi.load('picker', () => {
+                const appId = getAppId();
+                const apiKey = getApiKey();
+                const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+                    .setMimeTypes('application/json');
+                const builder = new google.picker.PickerBuilder()
+                    .enableFeature(google.picker.Feature.NAV_HIDDEN)
+                    .setOAuthToken(oauthToken)
+                    .addView(view)
+                    .setCallback((data: any) => {
+                        if (data.action === google.picker.Action.PICKED) {
+                            const doc = data.docs[0];
+                            resolve({ id: doc.id, name: doc.name });
+                        } else if (data.action === google.picker.Action.CANCEL) {
+                            resolve(null);
+                        }
+                    });
+                if (apiKey) builder.setDeveloperKey(apiKey);
+                if (appId) builder.setAppId(appId);
+                const picker = builder.build();
+                picker.setVisible(true);
+            });
+        } catch(e) {
+            console.error("Picker failed to load", e);
+            resolve(null);
+        }
+    });
+};
+
+export const getJsonFile = async (fileId: string, token: string): Promise<any> => {
+    if (token === 'simulated-token') {
+        return null;
+    }
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+        return await res.json();
+    }
+    throw new Error("Failed to load JSON file");
+};

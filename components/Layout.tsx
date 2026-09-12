@@ -11,6 +11,8 @@ interface LayoutProps {
   onSave: () => void;
   onExport: () => void;
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onNewProject: () => void;
+  onOpenProject: () => void;
   onOpenSettings: () => void;
   onOpenAiSettings: () => void;
   isAiActive: boolean;
@@ -18,7 +20,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ 
   children, activeTab, onTabChange, onSignIn, isSignedIn, selectedFolderName, onPickFolder, onSave,
-  onExport, onImport, onOpenSettings, onOpenAiSettings, isAiActive
+  onExport, onImport, onNewProject, onOpenProject, onOpenSettings, onOpenAiSettings, isAiActive
 }) => {
   const tabs = [
     { id: 'project', label: 'Project Context', icon: '📝' },
@@ -28,8 +30,8 @@ export const Layout: React.FC<LayoutProps> = ({
     { id: 'raci', label: 'RACI Matrix', icon: 'grid' },
     { id: 'risks', label: 'Risk Analysis', icon: 'chart_with_upwards_trend' },
     { id: 'docs', label: 'Plan & Charter', icon: 'page_facing_up' },
+    { id: 'sprints', label: 'Sprints', icon: 'runner' },
     { id: 'insights', label: 'Progress Insights', icon: 'pie_chart' },
-    { id: 'gantt', label: 'Gantt It', icon: 'bar_chart' },
   ];
 
   return (
@@ -140,9 +142,25 @@ export const Layout: React.FC<LayoutProps> = ({
                 )}
             </div>
 
-            {/* Local Save Section */}
+            {/* Project Management Section */}
             <div className="bg-slate-800  p-3">
-                <span className="text-xs font-semibold text-slate-300 block mb-2">Import / Export</span>
+                <span className="text-xs font-semibold text-slate-300 block mb-2">Project Actions</span>
+                <div className="flex gap-2 mb-2">
+                    <button 
+                        onClick={onNewProject}
+                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600"
+                    >
+                        New Project
+                    </button>
+                    {isSignedIn && (
+                    <button 
+                        onClick={onOpenProject}
+                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600 flex items-center justify-center gap-1"
+                    >
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" className="w-3 h-3" alt="Drive" /> Open
+                    </button>
+                    )}
+                </div>
                 <div className="flex gap-2">
                     <button 
                         onClick={onExport}

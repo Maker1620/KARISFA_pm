@@ -72,6 +72,17 @@ export interface Task {
   startDate?: string;
   dueDate?: string;
   dependencies?: string[]; // IDs of predecessor tasks
+  estHours?: number;
+  storyPoints?: number;
+}
+
+export interface Sprint {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  taskIds: string[];
+  status: 'Planned' | 'Active' | 'Completed';
 }
 
 export interface Milestone {
@@ -162,7 +173,17 @@ export interface NexusProjectState {
   milestones: Milestone[];
   deliverables: Deliverable[];
   resources: ProjectResource[];
+  goals?: Goal[];
+  sprints?: Sprint[];
   journalEntries?: JournalEntry[];
   meetingMinutes?: MeetingMinute[];
   lastSaved?: string;
+}
+export interface Goal {
+  id: string;
+  description: string;
+  criteria: string;
+  deliverableId: string;
+  dueDate: string;
+  progress: number;
 }

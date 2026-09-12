@@ -7,15 +7,15 @@ import { DocumentView } from './components/DocumentView';
 import { ProgressInsights } from './components/ProgressInsights';
 import { RiskChart } from './components/RiskChart';
 import { WorkBreakdown } from './components/WorkBreakdown';
-import { GanttChart } from './components/GanttChart';
+import { Sprints } from './components/Sprints';
 import { ResourceCosting } from './components/ResourceCosting';
 import { SettingsModal } from './components/SettingsModal';
 import { AiSettingsModal } from './components/AiSettingsModal';
 import { 
-    ProjectData, TeamMember, RaciRow, RiskItem, Deliverable, Milestone, Task, 
+    ProjectData, TeamMember, RaciRow, RiskItem, Deliverable, Milestone, Task, Sprint, 
     NexusProjectState, ProjectResource, JournalEntry 
 } from './types';
-import { initDriveApi, signInToDrive, saveProjectAsSheet, saveProjectAsJsonBackup, openFolderPicker, getFilesInFolder, getFileText } from './services/driveService';
+import { initDriveApi, signInToDrive, saveProjectAsSheet, saveProjectAsJsonBackup, openFolderPicker, openJsonFilePicker, getJsonFile, getFilesInFolder, getFileText } from './services/driveService';
 import { extractProjectDataFromDocs } from './services/geminiService';
 import { loadLocalProject, saveLocalProject } from './services/storageService';
 
@@ -46,6 +46,10 @@ function App() {
   
   // Resource State
   const [resources, setResources] = useState<ProjectResource[]>([]);
+  
+  // Goals State
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
 
   // Journal State
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
@@ -93,13 +97,17 @@ function App() {
   useEffect(() => {
       const timer = setTimeout(() => {
           const state: NexusProjectState = {
-              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
+              projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              goals,
+              sprints, journalEntries, meetingMinutes,
               lastSaved: new Date().toISOString()
           };
           saveLocalProject(state);
       }, 2000); // Debounce save
       return () => clearTimeout(timer);
-  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes]);
+  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              goals,
+              sprints, journalEntries, meetingMinutes]);
 
   // Auto-backup to Google Drive JSON file
   useEffect(() => {
@@ -108,7 +116,9 @@ function App() {
       const timer = setTimeout(async () => {
           try {
               const state: NexusProjectState = {
-                  projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
+                  projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              goals,
+              sprints, journalEntries, meetingMinutes,
                   lastSaved: new Date().toISOString()
               };
               await saveProjectAsJsonBackup(projectData.googleDriveFolderId, state, accessToken);
@@ -117,7 +127,9 @@ function App() {
           }
       }, 5000); // 5 second debounce for Drive
       return () => clearTimeout(timer);
-  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes, isSignedIn, accessToken]);
+  }, [projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              goals,
+              sprints, journalEntries, meetingMinutes, isSignedIn, accessToken]);
 
   const handleSignIn = async () => {
       try {
@@ -170,7 +182,9 @@ function App() {
       // If NOT signed in, simple local save confirmation
       if (!isSignedIn) {
           const state: NexusProjectState = {
-              projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
+              projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              goals,
+              sprints, journalEntries, meetingMinutes,
               lastSaved: new Date().toISOString()
           };
           saveLocalProject(state);
@@ -196,6 +210,8 @@ function App() {
               milestones,
               deliverables,
               resources,
+              goals,
+              sprints,
               journalEntries,
               meetingMinutes,
               lastSaved: new Date().toISOString()
@@ -224,7 +240,9 @@ function App() {
           if(!confirm("Project has no name. Export anyway?")) return;
       }
       const state: NexusProjectState = {
-          projectData, team, raciData, risks, tasks, milestones, deliverables, resources, journalEntries, meetingMinutes,
+          projectData, team, raciData, risks, tasks, milestones, deliverables, resources,
+              goals,
+              sprints, journalEntries, meetingMinutes,
           lastSaved: new Date().toISOString()
       };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
@@ -256,6 +274,8 @@ function App() {
               setMilestones(importedState.milestones || []);
               setDeliverables(importedState.deliverables || []);
               setResources(importedState.resources || []);
+              setGoals(importedState.goals || []);
+              setSprints(importedState.sprints || []);
               setJournalEntries(importedState.journalEntries || []);
               setMeetingMinutes(importedState.meetingMinutes || []);
               
@@ -269,6 +289,52 @@ function App() {
       reader.readAsText(file);
       // Reset input value to allow re-importing same file if needed
       e.target.value = '';
+  };
+
+  const handleNewProject = () => {
+      if (!confirm("Are you sure you want to create a new project? All unsaved local changes will be lost.")) return;
+      setProjectData({ name: '', description: '', objectives: '', scope: '', timeline: '' });
+      setTeam([]);
+      setRaciData([]);
+      setRisks([]);
+      setTasks([]);
+      setMilestones([]);
+      setDeliverables([]);
+      setResources([]);
+      setGoals([]);
+      setSprints([]);
+      setJournalEntries([]);
+      setMeetingMinutes([]);
+  };
+
+  const handleOpenProject = async () => {
+      if (!accessToken) {
+          alert("Please sign in to Google Drive first.");
+          return;
+      }
+      const file = await openJsonFilePicker(accessToken);
+      if (file) {
+          try {
+              const importedState = await getJsonFile(file.id, accessToken);
+              if (!importedState || !importedState.projectData) throw new Error("Invalid project file");
+              
+              setProjectData(importedState.projectData);
+              setTeam(importedState.team || []);
+              setRaciData(importedState.raciData || []);
+              setRisks(importedState.risks || []);
+              setTasks(importedState.tasks || []);
+              setMilestones(importedState.milestones || []);
+              setDeliverables(importedState.deliverables || []);
+              setResources(importedState.resources || []);
+              setGoals(importedState.goals || []);
+              setSprints(importedState.sprints || []);
+              setJournalEntries(importedState.journalEntries || []);
+              setMeetingMinutes(importedState.meetingMinutes || []);
+          } catch(e) {
+              console.error(e);
+              alert("Failed to parse project file from Google Drive.");
+          }
+      }
   };
 
   const handleImportDocsFolder = async () => {
@@ -440,6 +506,7 @@ function App() {
             tasks={tasks} setTasks={setTasks}
             milestones={milestones} setMilestones={setMilestones}
             deliverables={deliverables} setDeliverables={setDeliverables}
+            goals={goals} setGoals={setGoals}
             team={team} 
           />
         );
@@ -456,10 +523,10 @@ function App() {
         return <RiskChart project={projectData} risks={risks} setRisks={setRisks} team={team} />;
       case 'docs':
         return <DocumentView project={projectData} team={team} journal={journalEntries} setJournal={setJournalEntries} meetingMinutes={meetingMinutes} setMeetingMinutes={setMeetingMinutes} tasks={tasks} />;
+      case 'sprints':
+        return <Sprints sprints={sprints} setSprints={setSprints} tasks={tasks} />;
       case 'insights':
-        return <ProgressInsights tasks={tasks} milestones={milestones} team={team} deliverables={deliverables} resources={resources} />;
-      case 'gantt':
-        return <GanttChart tasks={tasks} milestones={milestones} team={team} />;
+        return <ProgressInsights tasks={tasks} sprints={sprints} milestones={milestones} team={team} deliverables={deliverables} resources={resources} goals={goals} />;
       default:
         return <ProjectForm data={projectData} onChange={setProjectData} />;
     }
@@ -477,6 +544,8 @@ function App() {
           onSave={handleSave}
           onExport={handleExport}
           onImport={handleImport}
+          onNewProject={handleNewProject}
+          onOpenProject={handleOpenProject}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenAiSettings={() => setIsAiSettingsOpen(true)}
           isAiActive={isAiActive}

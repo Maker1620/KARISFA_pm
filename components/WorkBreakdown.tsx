@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Deliverable, Milestone, Task, TeamMember } from '../types';
+import TextareaAutosize from 'react-textarea-autosize';
+import { Deliverable, Milestone, Task, TeamMember, Goal } from '../types';
 
 interface WorkBreakdownProps {
   tasks: Task[];
@@ -8,6 +9,8 @@ interface WorkBreakdownProps {
   setMilestones: React.Dispatch<React.SetStateAction<Milestone[]>>;
   deliverables: Deliverable[];
   setDeliverables: React.Dispatch<React.SetStateAction<Deliverable[]>>;
+  goals?: Goal[];
+  setGoals?: React.Dispatch<React.SetStateAction<Goal[]>>;
   team: TeamMember[];
 }
 
@@ -15,18 +18,28 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
   tasks, setTasks, 
   milestones, setMilestones, 
   deliverables, setDeliverables, 
+  goals = [], setGoals,
   team 
 }) => {
   // --- Task State ---
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskDependency, setNewTaskDependency] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<Task['priority']>('Medium');
+  const [newTaskEstHours, setNewTaskEstHours] = useState<number | "">("");
+  const [newTaskStoryPoints, setNewTaskStoryPoints] = useState<number | "">("");
   
   // --- Milestone State ---
   const [newMilestoneName, setNewMilestoneName] = useState('');
 
   // --- Deliverable State ---
   const [newDeliverableName, setNewDeliverableName] = useState('');
+
+  // --- Goal State ---
+  const [newGoalDescription, setNewGoalDescription] = useState('');
+  const [newGoalCriteria, setNewGoalCriteria] = useState('');
+  const [newGoalDeliverableId, setNewGoalDeliverableId] = useState('');
+  const [newGoalDueDate, setNewGoalDueDate] = useState('');
+  const [newGoalProgress, setNewGoalProgress] = useState<number>(0);
 
   // --- Handlers ---
 
@@ -41,11 +54,15 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
       dueDate: '',
       milestoneId: '',
       assigneeId: '',
-      dependencies: newTaskDependency ? [newTaskDependency] : []
+      dependencies: newTaskDependency ? [newTaskDependency] : [],
+      estHours: Number(newTaskEstHours) || 0,
+      storyPoints: Number(newTaskStoryPoints) || 0,
     };
     setTasks([...tasks, newTask]);
     setNewTaskName('');
     setNewTaskDependency('');
+    setNewTaskEstHours('');
+    setNewTaskStoryPoints('');
     setNewTaskPriority('Medium');
   };
 
@@ -82,6 +99,34 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
 
   const updateDeliverable = (id: string, updates: Partial<Deliverable>) => {
     setDeliverables(deliverables.map(d => d.id === id ? { ...d, ...updates } : d));
+  };
+
+  const addGoal = () => {
+    if (!newGoalDescription.trim() || !setGoals) return;
+    const newGoal: Goal = {
+      id: `goal-${Date.now()}`,
+      description: newGoalDescription,
+      criteria: newGoalCriteria,
+      deliverableId: newGoalDeliverableId,
+      dueDate: newGoalDueDate,
+      progress: newGoalProgress,
+    };
+    setGoals([...goals, newGoal]);
+    setNewGoalDescription('');
+    setNewGoalCriteria('');
+    setNewGoalDeliverableId('');
+    setNewGoalDueDate('');
+    setNewGoalProgress(0);
+  };
+
+  const updateGoal = (id: string, updates: Partial<Goal>) => {
+    if (!setGoals) return;
+    setGoals(goals.map(g => g.id === id ? { ...g, ...updates } : g));
+  };
+
+  const deleteGoal = (id: string) => {
+    if (!setGoals) return;
+    setGoals(goals.filter(g => g.id !== id));
   };
 
   const deleteTask = (id: string) => setTasks(tasks.filter(t => t.id !== id));
@@ -185,9 +230,9 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                    <th className="px-4 py-3 min-w-[150px]">Milestone</th>
                    <th className="px-4 py-3 min-w-[200px]">Predecessors</th>
                    <th className="px-4 py-3 min-w-[150px]">Assignee</th>
-                   <th className="px-4 py-3 w-32">Start Date</th>
+                   <th className="px-4 py-3 w-28">Story Points</th>
+                   <th className="px-4 py-3 w-28">Est. Hours</th>
                    <th className="px-4 py-3 w-32">Due Date</th>
-                   <th className="px-4 py-3 w-32">Status</th>
                    <th className="px-4 py-3 w-10"></th>
                 </tr>
              </thead>
@@ -203,12 +248,18 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                     const blocked = isTaskBlocked(task);
                     return (
                    <tr key={task.id} className="hover:bg-slate-50 group">
-                      <td className="px-6 py-2">
+                      <td className="px-6 py-2 flex items-center gap-2">
                          <input 
-                            type="text" 
+                             type="checkbox"
+                             checked={task.status === 'Done'}
+                             onChange={(e) => updateTask(task.id, { status: e.target.checked ? 'Done' : 'Todo' })}
+                             className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                             title="Mark as completed"
+                         />
+                         <TextareaAutosize 
                             value={task.name} 
                             onChange={(e) => updateTask(task.id, { name: e.target.value })}
-                            className="w-full bg-transparent border-none focus:ring-0 p-0 font-medium text-slate-600"
+                            className={`w-full bg-transparent border-none focus:ring-0 p-0 font-medium resize-none overflow-hidden ${task.status === 'Done' ? 'text-slate-400 line-through' : 'text-slate-600'}`}
                          />
                       </td>
                       <td className="px-4 py-2">
@@ -276,10 +327,23 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                       </td>
                       <td className="px-4 py-2">
                          <input 
-                            type="date" 
-                            value={task.startDate || ''}
-                            onChange={(e) => updateTask(task.id, { startDate: e.target.value })}
-                            className="w-full bg-transparent text-xs text-slate-500 focus:text-slate-700 outline-none"
+                            type="number" 
+                            min="0"
+                            value={task.storyPoints || ''}
+                            onChange={(e) => updateTask(task.id, { storyPoints: Number(e.target.value) || undefined })}
+                            placeholder="Points"
+                            className="w-full bg-transparent border border-slate-200 px-2 py-1 text-xs focus:border-blue-700 outline-none text-slate-600"
+                         />
+                      </td>
+                      <td className="px-4 py-2">
+                         <input 
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            value={task.estHours || ''}
+                            onChange={(e) => updateTask(task.id, { estHours: Number(e.target.value) || undefined })}
+                            placeholder="Hours"
+                            className="w-full bg-transparent border border-slate-200 px-2 py-1 text-xs focus:border-blue-700 outline-none text-slate-600"
                          />
                       </td>
                       <td className="px-4 py-2">
@@ -289,29 +353,6 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                             onChange={(e) => updateTask(task.id, { dueDate: e.target.value })}
                             className="w-full bg-transparent text-xs text-slate-500 focus:text-slate-700 outline-none"
                          />
-                      </td>
-                      <td className="px-4 py-2">
-                         <div className="relative">
-                             {blocked && (
-                                 <div className="absolute -left-4 top-1/2 -translate-y-1/2 text-red-400" title="Blocked by incomplete dependencies">
-                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                 </div>
-                             )}
-                             <select 
-                                value={task.status}
-                                disabled={blocked && task.status === 'Todo'} // Prevent starting if blocked, but allow moving back if needed
-                                onChange={(e) => updateTask(task.id, { status: e.target.value as any })}
-                                className={`w-full px-2 py-1  text-xs font-bold appearance-none cursor-pointer border ${
-                                   task.status === 'Done' ? 'bg-green-100 text-green-700 border-green-200' : 
-                                   blocked ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' :
-                                   task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white text-slate-600 border-slate-200'
-                                }`}
-                             >
-                                 <option value="Todo">{blocked ? 'Blocked' : 'Todo'}</option>
-                                 <option value="In Progress">Doing</option>
-                                 <option value="Done">Done</option>
-                             </select>
-                         </div>
                       </td>
                       <td className="px-4 py-2 text-right">
                          <button onClick={() => deleteTask(task.id)} className="text-slate-300 hover:text-red-500">
@@ -368,11 +409,10 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                 {milestones.map(ms => (
                    <tr key={ms.id} className="hover:bg-slate-50">
                       <td className="px-6 py-2">
-                         <input 
-                            type="text" 
+                         <TextareaAutosize 
                             value={ms.name} 
                             onChange={(e) => updateMilestone(ms.id, { name: e.target.value })}
-                            className="w-full bg-transparent border-none focus:ring-0 p-0 font-medium text-slate-600"
+                            className="w-full bg-transparent border-none focus:ring-0 p-0 font-medium text-slate-600 resize-none overflow-hidden"
                          />
                       </td>
                       <td className="px-4 py-2">
@@ -449,20 +489,18 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                 {deliverables.map(del => (
                    <tr key={del.id} className="hover:bg-slate-50">
                       <td className="px-6 py-2">
-                         <input 
-                            type="text" 
+                         <TextareaAutosize 
                             value={del.name} 
                             onChange={(e) => updateDeliverable(del.id, { name: e.target.value })}
-                            className="w-full bg-transparent border-none focus:ring-0 p-0 font-medium text-slate-600"
+                            className="w-full bg-transparent border-none focus:ring-0 p-0 font-medium text-slate-600 resize-none overflow-hidden"
                          />
                       </td>
                       <td className="px-4 py-2">
-                         <input 
-                            type="text" 
+                         <TextareaAutosize 
                             value={del.description || ''} 
                             onChange={(e) => updateDeliverable(del.id, { description: e.target.value })}
                             placeholder="Optional description..."
-                            className="w-full bg-transparent border-none focus:ring-0 p-0 text-slate-400 text-xs italic"
+                            className="w-full bg-transparent border-none focus:ring-0 p-0 text-slate-400 text-xs italic resize-none overflow-hidden"
                          />
                       </td>
                       <td className="px-4 py-2">
@@ -483,6 +521,127 @@ export const WorkBreakdown: React.FC<WorkBreakdownProps> = ({
                 {deliverables.length === 0 && (
                    <tr>
                       <td colSpan={4} className="px-6 py-8 text-center text-slate-400 italic">No deliverables created yet.</td>
+                   </tr>
+                )}
+             </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* --- GOALS SECTION (BOTTOM) --- */}
+      <section className="bg-white shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+          <div>
+            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+               🎯 Goals (SMART)
+            </h3>
+            <p className="text-xs text-slate-500">Specific, Measurable, Achievable, Relevant, and Time-Bound goals tied to deliverables.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 w-full xl:w-auto">
+             <input 
+               type="text" 
+               value={newGoalDescription}
+               onChange={(e) => setNewGoalDescription(e.target.value)}
+               placeholder="Goal Description"
+               className="flex-1 sm:flex-none px-3 py-1.5 border border-slate-300 text-sm outline-none focus:border-blue-700 bg-white text-slate-600 placeholder:text-slate-400 min-w-[200px]"
+             />
+             <input 
+               type="text" 
+               value={newGoalCriteria}
+               onChange={(e) => setNewGoalCriteria(e.target.value)}
+               placeholder="Success Criteria"
+               className="flex-1 sm:flex-none px-3 py-1.5 border border-slate-300 text-sm outline-none focus:border-blue-700 bg-white text-slate-600 placeholder:text-slate-400 min-w-[150px]"
+             />
+             <select
+                value={newGoalDeliverableId}
+                onChange={(e) => setNewGoalDeliverableId(e.target.value)}
+                className="px-3 py-1.5 border border-slate-300 text-sm outline-none focus:border-blue-700 bg-white text-slate-600"
+             >
+                <option value="">No Deliverable</option>
+                {deliverables.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+             </select>
+             <input 
+               type="date" 
+               value={newGoalDueDate}
+               onChange={(e) => setNewGoalDueDate(e.target.value)}
+               className="px-3 py-1.5 border border-slate-300 text-sm outline-none focus:border-blue-700 bg-white text-slate-600"
+             />
+             <button onClick={addGoal} className="px-4 py-1.5 bg-blue-800 text-white text-sm font-semibold hover:bg-blue-900 transition w-full sm:w-auto">
+               Add Goal
+             </button>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+             <thead>
+                <tr className="bg-slate-100 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                   <th className="px-6 py-3 font-semibold">Goal Description</th>
+                   <th className="px-4 py-3 font-semibold">Success Criteria</th>
+                   <th className="px-4 py-3 font-semibold">Deliverable (Relevant)</th>
+                   <th className="px-4 py-3 font-semibold w-40">Due Date (Time-Bound)</th>
+                   <th className="px-4 py-3 font-semibold w-32">Progress (%)</th>
+                   <th className="px-4 py-3 font-semibold text-right w-20">Actions</th>
+                </tr>
+             </thead>
+             <tbody className="divide-y divide-slate-100">
+                {goals.map(goal => (
+                   <tr key={goal.id} className="hover:bg-slate-50/50 transition">
+                      <td className="px-6 py-2">
+                         <input 
+                            type="text"
+                            value={goal.description}
+                            onChange={(e) => updateGoal(goal.id, { description: e.target.value })}
+                            className="w-full font-medium text-slate-800 text-sm bg-transparent focus:bg-white focus:ring-1 focus:ring-blue-700 outline-none px-1 py-0.5"
+                         />
+                      </td>
+                      <td className="px-4 py-2">
+                         <input 
+                            type="text"
+                            value={goal.criteria}
+                            onChange={(e) => updateGoal(goal.id, { criteria: e.target.value })}
+                            className="w-full text-slate-600 text-sm bg-transparent focus:bg-white focus:ring-1 focus:ring-blue-700 outline-none px-1 py-0.5"
+                            placeholder="e.g., metric"
+                         />
+                      </td>
+                      <td className="px-4 py-2">
+                         <select
+                            value={goal.deliverableId || ''}
+                            onChange={(e) => updateGoal(goal.id, { deliverableId: e.target.value })}
+                            className="w-full bg-transparent text-sm text-slate-600 focus:bg-white focus:ring-1 focus:ring-blue-700 outline-none p-1"
+                         >
+                            <option value="">No Deliverable</option>
+                            {deliverables.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                         </select>
+                      </td>
+                      <td className="px-4 py-2">
+                         <input 
+                            type="date"
+                            value={goal.dueDate || ''}
+                            onChange={(e) => updateGoal(goal.id, { dueDate: e.target.value })}
+                            className="w-full bg-transparent text-xs text-slate-500 focus:text-slate-700 outline-none"
+                         />
+                      </td>
+                      <td className="px-4 py-2 flex items-center h-full pt-1.5">
+                         <input 
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={goal.progress || 0}
+                            onChange={(e) => updateGoal(goal.id, { progress: Number(e.target.value) })}
+                            className="w-16 bg-transparent text-sm text-slate-600 focus:bg-white focus:ring-1 focus:ring-blue-700 outline-none p-1 border border-slate-200"
+                         /> 
+                         <span className="ml-1 text-xs text-slate-500">%</span>
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                         <button onClick={() => deleteGoal(goal.id)} className="text-slate-300 hover:text-red-500">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                         </button>
+                      </td>
+                   </tr>
+                ))}
+                {goals.length === 0 && (
+                   <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-400 italic">No goals added yet.</td>
                    </tr>
                 )}
              </tbody>

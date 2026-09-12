@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Task, Milestone, TeamMember, Deliverable, ProjectResource } from '../types';
+import { Task, Milestone, TeamMember, Deliverable, ProjectResource, Goal, Sprint } from '../types';
 import { 
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
     PieChart, Pie, Cell, Legend, BarChart, Bar, LineChart, Line
 } from 'recharts';
 // @ts-ignore
@@ -13,9 +13,11 @@ interface ProgressInsightsProps {
     team: TeamMember[];
     deliverables: Deliverable[];
     resources: ProjectResource[];
+    goals?: Goal[];
+    sprints?: Sprint[];
 }
 
-export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, milestones, team, deliverables, resources }) => {
+export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, milestones, team, deliverables, resources, goals = [], sprints = [] }) => {
     const [isDownloading, setIsDownloading] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
     
@@ -68,7 +70,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
         ];
     }, [tasks]);
 
-    // 2. Timeline Burn-up (Area Chart) + Velocity
+    // 2. Timeline Burn-up (Line Chart) + Velocity
     const timelineData = useMemo(() => {
         const dates = new Set<string>();
         tasks.forEach(t => {
@@ -105,6 +107,33 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
             };
         });
     }, [tasks, milestones]);
+
+    const sprintBurnupData = useMemo(() => {
+        const totalScope = tasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
+        const sortedSprints = [...sprints]
+            .filter(s => s.status === "Completed" || s.status === "Active")
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        let cumulativeCompleted = 0;
+        const data = sortedSprints.map(sprint => {
+            let sprintCompletedPoints = 0;
+            sprint.taskIds.forEach(tId => {
+                const t = tasks.find(task => task.id === tId);
+                if (t && t.status === "Done") {
+                    sprintCompletedPoints += (t.storyPoints || 0);
+                }
+            });
+            cumulativeCompleted += sprintCompletedPoints;
+            return {
+                sprintName: sprint.name,
+                "Total Scope": totalScope,
+                "Completed Points": cumulativeCompleted
+            };
+        });
+        if (data.length === 0) {
+            return [{ sprintName: "No Sprints", "Total Scope": totalScope, "Completed Points": 0 }];
+        }
+        return data;
+    }, [sprints, tasks]);
 
     // 3. Assignee Workload (Bar Chart)
     const assigneeData = useMemo(() => {
@@ -187,6 +216,30 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
     const completedTasks = tasks.filter(t => t.status === 'Done').length;
     const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     
+    // Velocity & Capacity
+    const pastSprints = sprints.filter(s => s.status === "Completed" || new Date(s.endDate) < new Date());
+    let totalCompletedSp = 0;
+    pastSprints.forEach(s => {
+        s.taskIds.forEach(tId => {
+            const t = tasks.find(task => task.id === tId);
+            if (t && t.status === "Done") {
+                totalCompletedSp += (t.storyPoints || 0);
+            }
+        });
+    });
+    const velocity = pastSprints.length > 0 ? Math.round(totalCompletedSp / pastSprints.length) : 0;
+
+    const upcomingSprint = sprints.find(s => s.status === "Active") || sprints.find(s => s.status === "Planned" && new Date(s.startDate) >= new Date());
+    let capacity = 0;
+    if (upcomingSprint) {
+        upcomingSprint.taskIds.forEach(tId => {
+            const t = tasks.find(task => task.id === tId);
+            if (t) {
+                capacity += (t.estHours || 0);
+            }
+        });
+    }
+    
     return (
         <div className="space-y-6 pb-12">
             <div className="flex justify-between items-center bg-slate-50 p-4  border border-slate-200">
@@ -206,7 +259,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
 
             <div ref={contentRef} className="space-y-6">
                 {/* KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-white border border-slate-200  p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500 mb-1">Total Tasks</p>
                     <p className="text-3xl font-bold text-slate-800">{totalTasks}</p>
@@ -222,13 +275,18 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                     </div>
                 </div>
                 <div className="bg-white border border-slate-200  p-5 shadow-sm">
+                    <p className="text-sm font-medium text-slate-500 mb-1" title="Average story points completed in past sprints">Velocity</p>
+                    <p className="text-3xl font-bold text-indigo-600">{velocity}</p>
+                </div>
+                <div className="bg-white border border-slate-200  p-5 shadow-sm">
+                    <p className="text-sm font-medium text-slate-500 mb-1" title="Total estimated hours in the upcoming sprint">Capacity</p>
+                    <p className="text-3xl font-bold text-teal-600">{capacity} <span className="text-sm font-medium text-slate-500">hrs</span></p>
+                </div>
+                <div className="bg-white border border-slate-200  p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500 mb-1">Budget Utilized</p>
                     <div className="flex items-end gap-2">
                         <p className={`text-3xl font-bold ${budgetUtilization > 100 ? 'text-red-600' : 'text-slate-800'}`}>
                             {budgetUtilization}%
-                        </p>
-                        <p className="text-xs text-slate-400 mb-1 pb-0.5 whitespace-nowrap">
-                            (${actualSpend.toLocaleString()} / ${totalBudget.toLocaleString()})
                         </p>
                     </div>
                 </div>
@@ -243,11 +301,11 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     {/* Burn-up Chart + Velocity */}
-                    <div className="lg:col-span-2 bg-white border border-slate-200  p-6 shadow-sm">
+                    <div className="lg:col-span-2 bg-white border border-slate-200 p-6 shadow-sm">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Velocity & Scope Burn-up</h3>
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={timelineData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                <LineChart data={sprintBurnupData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorStarted" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor={COLORS.StartedLine} stopOpacity={0.8}/>
@@ -263,16 +321,16 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} tickMargin={10} axisLine={false} tickLine={false} />
+                                    <XAxis dataKey="sprintName" tick={{ fill: '#64748b', fontSize: 12 }} tickMargin={10} axisLine={false} tickLine={false} />
                                     <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
                                     <Tooltip 
                                         contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                     />
                                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                                    <Area type="stepAfter" dataKey="Tasks Due" stroke={COLORS.DueLine} strokeWidth={2} fillOpacity={1} fill="url(#colorDue)" />
-                                    <Area type="stepAfter" dataKey="Tasks Started" stroke={COLORS.StartedLine} strokeWidth={2} fillOpacity={1} fill="url(#colorStarted)" />
-                                    <Area type="stepAfter" dataKey="Tasks Completed" stroke={COLORS.Done} strokeWidth={3} fillOpacity={1} fill="url(#colorDone)" />
-                                </AreaChart>
+                                    
+                                    <Line type="monotone" dataKey="Total Scope" stroke={COLORS.StartedLine} strokeDasharray="5 5" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="Completed Points" stroke={COLORS.Done} strokeWidth={3} activeDot={{ r: 8 }} />
+                                </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -307,7 +365,7 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                     </div>
 
                     {/* Assignee Workload & Capacity */}
-                    <div className="lg:col-span-2 bg-white border border-slate-200  p-6 shadow-sm">
+                    <div className="bg-white border border-slate-200  p-6 shadow-sm">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Team Capacity & Workload</h3>
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
@@ -351,6 +409,32 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                                             ></div>
                                         </div>
                                         <p className="text-[10px] text-slate-400">{del.completed} / {del.total} tasks completed</p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Goals Progress */}
+                    <div className="bg-white border border-slate-200 p-6 shadow-sm overflow-hidden flex flex-col">
+                        <h3 className="text-lg font-bold text-slate-800 mb-4">Goals Progress</h3>
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+                            {goals.length === 0 ? (
+                                <p className="text-sm text-slate-400 italic">No goals defined yet.</p>
+                            ) : (
+                                goals.map(goal => (
+                                    <div key={goal.id} className="space-y-1.5">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="font-medium text-slate-700 truncate pr-2" title={goal.description}>{goal.description}</span>
+                                            <span className="text-xs font-bold text-slate-500">{goal.progress}%</span>
+                                        </div>
+                                        <div className="w-full bg-slate-100 h-2">
+                                            <div 
+                                                className={`h-2 ${goal.progress === 100 ? 'bg-green-400' : 'bg-amber-500'}`} 
+                                                style={{ width: `${goal.progress}%` }}
+                                            ></div>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400">{goal.criteria}</p>
                                     </div>
                                 ))
                             )}
