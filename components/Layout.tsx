@@ -145,33 +145,33 @@ export const Layout: React.FC<LayoutProps> = ({
             {/* Project Management Section */}
             <div className="bg-slate-800  p-3">
                 <span className="text-xs font-semibold text-slate-300 block mb-2">Project Actions</span>
-                <div className="flex gap-2 mb-2">
+                <div className="flex flex-col gap-2 mb-2">
                     <button 
                         onClick={onNewProject}
-                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600"
+                        className="w-full py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium hover:bg-slate-600 transition border border-slate-600"
                     >
                         New Project
                     </button>
                     {isSignedIn && (
                     <button 
                         onClick={onOpenProject}
-                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600 flex items-center justify-center gap-1"
+                        className="w-full py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium hover:bg-slate-600 transition border border-slate-600 flex items-center justify-center gap-2"
                     >
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" className="w-3 h-3" alt="Drive" /> Open
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" className="w-4 h-4" alt="Drive" /> Open from Drive
                     </button>
                     )}
                 </div>
                 <div className="flex gap-2">
                     <button 
                         onClick={onExport}
-                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600"
-                        title="Download Project JSON"
+                        className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium hover:bg-slate-600 transition border border-slate-600"
+                        title="Download Project (.kar)"
                     >
-                        Export JSON
+                        Export
                     </button>
                     <label className="flex-1 py-1.5 px-2 bg-slate-700 text-slate-200 text-xs font-medium  hover:bg-slate-600 transition border border-slate-600 text-center cursor-pointer">
                         Import
-                        <input type="file" accept=".json" className="hidden" onChange={onImport} />
+                        <input type="file" accept=".kar,.json" className="hidden" onChange={onImport} />
                     </label>
                 </div>
             </div>

@@ -108,6 +108,30 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
         });
     }, [tasks, milestones]);
 
+    const velocityChartData = useMemo(() => {
+        const sortedSprints = [...sprints]
+            .filter(s => s.status === "Completed" || s.status === "Active")
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        const lastFive = sortedSprints.slice(-5);
+        const data = lastFive.map(sprint => {
+            let completedPoints = 0;
+            sprint.taskIds.forEach(tId => {
+                const t = tasks.find(task => task.id === tId);
+                if (t && t.status === "Done") {
+                    completedPoints += (t.storyPoints || 0);
+                }
+            });
+            return {
+                sprintName: sprint.name,
+                "Story Points": completedPoints
+            };
+        });
+        if (data.length === 0) {
+            return [{ sprintName: "No Sprints", "Story Points": 0 }];
+        }
+        return data;
+    }, [sprints, tasks]);
+
     const sprintBurnupData = useMemo(() => {
         const totalScope = tasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0);
         const sortedSprints = [...sprints]
@@ -360,6 +384,25 @@ export const ProgressInsights: React.FC<ProgressInsightsProps> = ({ tasks, miles
                                     />
                                     <Legend verticalAlign="bottom" height={36}/>
                                 </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* Velocity Chart */}
+                    <div className="bg-white border border-slate-200 p-6 shadow-sm">
+                        <h3 className="text-lg font-bold text-slate-800 mb-4">Sprint Velocity</h3>
+                        <div className="h-72">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={velocityChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="sprintName" tick={{ fill: '#64748b', fontSize: 12 }} tickMargin={10} axisLine={false} tickLine={false} />
+                                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                                    <Tooltip 
+                                        cursor={{ fill: '#f8fafc' }}
+                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Bar dataKey="Story Points" fill={COLORS.Done} radius={[4, 4, 0, 0]} />
+                                </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>

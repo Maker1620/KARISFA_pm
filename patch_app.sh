@@ -1,0 +1,2 @@
+sed -i 's/const filename = `${sanitizedName}_karisfa.json`;/const filename = `${sanitizedName}.kar`;/g' App.tsx
+sed -i 's/downloadAnchorNode.setAttribute("download", `${(projectData.name || "project").replace(\/\\s+\/g, '"'"'_'"'"')}_backup.json`);/const sanitizedExportName = (projectData.name || "Untitled_Project").replace(\/[^a-zA-Z0-9]\/g, "_");\n      downloadAnchorNode.setAttribute("download", `${sanitizedExportName}.kar`);/g' App.tsx

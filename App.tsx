@@ -121,7 +121,9 @@ function App() {
               sprints, journalEntries, meetingMinutes,
                   lastSaved: new Date().toISOString()
               };
-              await saveProjectAsJsonBackup(projectData.googleDriveFolderId, state, accessToken);
+              const sanitizedName = (projectData.name || "Untitled_Project").replace(/[^a-zA-Z0-9]/g, "_");
+              const filename = `${sanitizedName}.kar`;
+              await saveProjectAsJsonBackup(projectData.googleDriveFolderId, state, accessToken, filename);
           } catch (e) {
               console.error("Auto-backup failed", e);
           }
@@ -248,7 +250,8 @@ function App() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
       const downloadAnchorNode = document.createElement('a');
       downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", `${(projectData.name || "project").replace(/\s+/g, '_')}_backup.json`);
+      const sanitizedExportName = (projectData.name || "Untitled_Project").replace(/[^a-zA-Z0-9]/g, "_");
+      downloadAnchorNode.setAttribute("download", `${sanitizedExportName}.kar`);
       document.body.appendChild(downloadAnchorNode);
       downloadAnchorNode.click();
       downloadAnchorNode.remove();

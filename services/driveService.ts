@@ -459,21 +459,21 @@ export const saveProjectAsSheet = async (folderId: string, state: NexusProjectSt
     return spreadsheetId;
 };
 
-export const saveProjectAsJsonBackup = async (folderId: string, state: NexusProjectState, token: string): Promise<string> => {
+export const saveProjectAsJsonBackup = async (folderId: string, state: NexusProjectState, token: string, fileName: string = "Untitled_Project.kar"): Promise<string> => {
     if (getClientId() === 'YOUR_CLIENT_ID_HERE') {
         console.log("Simulating JSON Backup to Drive:", state);
         return "simulated-json-backup-id";
     }
 
     // search for existing "Nexus_Backup.json"
-    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+name='Nexus_Backup.json'+and+trashed=false&fields=files(id,name)`, {
+    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
         headers: { Authorization: `Bearer ${token}` }
     });
     const searchData = await searchRes.json();
     const existingFileId = searchData.files && searchData.files.length > 0 ? searchData.files[0].id : null;
 
     const fileMetadata: any = {
-        name: 'Nexus_Backup.json',
+        name: fileName,
         mimeType: 'application/json'
     };
     if (!existingFileId) {
@@ -522,7 +522,7 @@ export const openJsonFilePicker = async (oauthToken: string): Promise<{id: strin
                 const appId = getAppId();
                 const apiKey = getApiKey();
                 const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
-                    .setMimeTypes('application/json');
+                    .setQuery('*.kar');
                 const builder = new google.picker.PickerBuilder()
                     .enableFeature(google.picker.Feature.NAV_HIDDEN)
                     .setOAuthToken(oauthToken)
